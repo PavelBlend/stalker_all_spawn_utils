@@ -1,157 +1,331 @@
 import fmt
 
 
-def _read_cform(self):
-    print('_read_cform')
-
-    shapes_count = self.reader.uint8()
-    print('shapes_count = {}'.format(shapes_count))
-
-    for shape_index in range(shapes_count):
-        shape_type = self.reader.uint8()
-        print('shape_type = {}'.format(shape_type))
-
-        if shape_type == 0:    # sphere
-            position = self.reader.vec3()
-            radius = self.reader.float32()
-
-        else:    # box
-            matrix = self.reader.matrix3x4()
-            print('matrix = {}'.format(list(map(lambda x: '{:.2f}'.format(x), matrix))))
-
-    print(len(self.reader.data), self.reader.offset)
+int32 = 'int32'
+uint8 = 'uint8'
+uint16 = 'uint16'
+uint32 = 'uint32'
+uint64 = 'uint64'
+float32 = 'float32'
+vec3 = 'vec3'
+vec4 = 'vec4'
+matrix3x4 = 'matrix3x4'
+string = 'string'
+get_bytes = 'get_bytes'
 
 
-class CSE_Abstract:
+class NetPacket:
     def __init__(self, reader):
         self.reader = reader
-        self._read()
+        self.props = []
+        self.read()
+        self.debug()
 
-    def _read(self):
-        print('Base')
+    def read(self):
+        raise NotImplementedError
 
-        net_packet_size = self.reader.uint16()
-        print('net_packet_size = {}'.format(net_packet_size))
+    def get(self, name, fmt, *args):
+        read_fun = getattr(self.reader, fmt, None)
+        value = read_fun(*args)
+        self.props.append([name, value])
+        return value
 
-        state = self.reader.uint16()
-        print('state = {}'.format(state))
+    def debug(self):
+        print('-'*79)
+        print(self.__class__.__name__)
+        print()
+        for name, value in self.props:
+            print('{0} = {1}'.format(name, value))
+        print()
+        print(len(self.reader.data), self.reader.offset)
+        print('-'*79)
+        print('\n'*3)
 
-        if state == fmt.SpawnStates.UPDATE:
-            self._read_update()
 
-        elif state == fmt.SpawnStates.SPAWN:
-            self._read_state()
+class Base(NetPacket):
 
-        else:
-            print('Unknown NET Packet state')
+    def read(self):
+        self.get('net_packet_size', uint16)
+        self.get('state', uint16)
 
-    def _read_update(self):
-        self.section_name = 'UPDATE'
 
-    def _read_state(self):
-        print('CSE_Abstract')
+class CSE_Abstract(NetPacket):
 
-        self.section_name = self.reader.string()
-        print('section_name = {}'.format(self.section_name))
+    def read(self):
 
-        self.name = self.reader.string()
-        print('name = {}'.format(self.name))
+        self.section_name   = self.get('section_name', string)
+        self.name           = self.get('name',         string)
 
-        game_type = self.reader.uint8()    # GameID in fmt
-        print('game_type = {}'.format(game_type))
+        self.get            ('game_type',           uint8)    # GameID in fmt
+        self.get            ('rp',                  uint8)    # use supplied coords
+        self.get            ('position',            vec3)
+        self.get            ('direction',           vec3)
+        self.get            ('respawn_time',        uint16)
+        self.get            ('object_id',           uint16)
+        self.get            ('id_parent',           uint16)
+        self.get            ('id_phantom',          uint16)
+        flags = self.get    ('flags',               uint16)
 
-        rp = self.reader.uint8()    # use supplied coords
-        print('rp = {}'.format(rp))
-
-        position = self.reader.vec3()
-        print('position = {:.3f}, {:.3f}, {:.3f}'.format(*position))
-
-        direction = self.reader.vec3()
-        print('direction = {:.3f}, {:.3f}, {:.3f}'.format(*direction))
-
-        respawn_time = self.reader.uint16()
-        print('respawn_time = {}'.format(respawn_time))
-
-        object_id = self.reader.uint16()
-        print('object_id = {}'.format(object_id))
-
-        id_parent = self.reader.uint16()
-        print('id_parent = {}'.format(id_parent))
-
-        id_phantom = self.reader.uint16()
-        print('id_phantom = {}'.format(id_phantom)) 
-
-        flags = self.reader.uint16()
-        print('flags = {}'.format(flags))
-
-        obj_local = flags & fmt.SpawnFlags.OBJECT_LOCAL
-        obj_upd = flags & fmt.SpawnFlags.OBJECT_HAS_UPDATE
-        obj_as_player = flags & fmt.SpawnFlags.OBJECT_AS_PLAYER
-        obj_phantom = flags & fmt.SpawnFlags.OBJECT_PHANTOM
-        check_ver = flags & fmt.SpawnFlags.VERSION
-        update_packet = flags & fmt.SpawnFlags.UPDATE
-        spawn_time = flags & fmt.SpawnFlags.TIME
+        obj_local       = flags & fmt.SpawnFlags.OBJECT_LOCAL
+        obj_upd         = flags & fmt.SpawnFlags.OBJECT_HAS_UPDATE
+        obj_as_player   = flags & fmt.SpawnFlags.OBJECT_AS_PLAYER
+        obj_phantom     = flags & fmt.SpawnFlags.OBJECT_PHANTOM
+        check_ver       = flags & fmt.SpawnFlags.VERSION
+        update_packet   = flags & fmt.SpawnFlags.UPDATE
+        spawn_time      = flags & fmt.SpawnFlags.TIME
 
         if check_ver:
-            version = self.reader.uint16()
-            print('version = {}'.format(version))
+            self.get('version', uint16)
 
-        script_version = self.reader.uint16()
-        print('script_version = {}'.format(script_version))
-
-        client_data_size = self.reader.uint16()
-        print('client_data_size = {}'.format(client_data_size))
-
-        client_data = self.reader.get_bytes(client_data_size)
-        print('client_data = {}'.format(client_data))
-
-        spawn_id = self.reader.uint16()
-        print('spawn_id = {}'.format(spawn_id))
-
-        size = self.reader.uint16()
-        print('size = {}'.format(size))
-
-        print(len(self.reader.data), self.reader.offset)
+        self.get        ('script_version',      uint16)
+        sz = self.get   ('client_data_size',    uint16)
+        self.get        ('client_data',         get_bytes, sz)
+        self.get        ('spawn_id',            uint16)
+        self.get        ('size',                uint16)
 
 
-def read_alife_object(self):
-    print('CSE_ALifeObject')
+class CSE_Visual(NetPacket):
 
-    graph_id = self.reader.uint16()
-    print('graph_id = {}'.format(graph_id))
-
-    distance = self.reader.float32()
-    print('distance = {:.3f}'.format(distance))
-
-    direct_control = self.reader.uint32()
-    print('direct_control = {}'.format(direct_control))
-
-    node_id = self.reader.uint32()
-    print('node_id = {}'.format(node_id))
-
-    flags = self.reader.uint32()
-    print('flags = {}'.format(flags))
-
-    ini_string = self.reader.string()
-    print('ini_string = "{}"'.format(ini_string))
-
-    story_id = self.reader.uint32()
-    print('story_id = {}'.format(story_id))
-
-    spawn_story_id = self.reader.uint32()
-    print('spawn_story_id = {}'.format(spawn_story_id))
-
-    print(len(self.reader.data), self.reader.offset)
+    def read(self):
+        self.get('visual_name', string)
+        self.get('flags',       uint8)
 
 
-class CSE_ALifeObject(CSE_Abstract):
+class CSE_ALifeObject(NetPacket):
 
-    def _read_update(self):
-        pass
+    def read(self):
+        self.get('graph_id',        uint16)
+        self.get('distance',        float32)
+        self.get('direct_control',  uint32)
+        self.get('node_id',         uint32)
+        self.get('flags',           uint32)
+        self.get('ini_string',      string)
+        self.get('story_id',        uint32)
+        self.get('spawn_story_id',  uint32)
 
-    def _read_state(self):
-        CSE_Abstract._read_state(self)
-        read_alife_object(self)
+
+class CSE_ALifeObjectBreakable(NetPacket):
+
+    def read(self):
+        self.get('health', float32)
+
+
+class CForm(NetPacket):
+
+    def read(self):
+        shapes_count = self.get('shapes_count', uint8)
+
+        for shape_index in range(shapes_count):
+            shape_type = self.get('shape_type', uint8)
+
+            if shape_type == 0:    # sphere
+                self.get('position',    vec3)
+                self.get('radius',      float32)
+
+            else:    # box
+                self.get('matrix', matrix3x4)
+
+
+class CSE_PHSkeleton(NetPacket):
+
+    def read(self):
+        self.get            ('startup_animation',   string)
+        flags = self.get    ('flags',               uint8)
+        self.get            ('source_id',           uint16)
+
+        if flags & fmt.SkeletonFlags.SavedData:
+
+            # bones data
+            self.get('bones_mask',  uint64)
+            self.get('root_bone',   uint16)
+            self.get('linear_vel',  vec3)
+            self.get('position',    vec3)
+            self.get('quaternion',  vec4)
+            self.get('enabled',     uint8)
+            self.get('vec_min',     vec3)
+            self.get('vec_max',     vec3)
+
+
+class CSE_ALifeCreatureAbstract(NetPacket):
+
+    def read(self):
+        self.get('team',                        uint8)
+        self.get('squad',                       uint8)
+        self.get('group',                       uint8)
+        self.get('health',                      float32)
+        self.get('dynamic_out_restrictions',    uint32)
+        self.get('dynamic_in_restrictions',     uint32)
+        self.get('killer_id',                   uint16)
+        self.get('game_death_time',             uint64)
+
+
+class CSE_ALifeTraderAbstract(NetPacket):
+
+    def read(self):
+        self.get('money',               uint32)
+        self.get('specific_character',  string)
+        self.get('trader_flags',        uint32)
+        self.get('character_profile',   string)
+        self.get('community_index',     int32)
+        self.get('rank',                int32)
+        self.get('reputation',          int32)
+        self.get('character_name',      string)
+
+
+class CSE_ALifeCreatureActor(NetPacket):
+
+    def read(self):
+        self.get('holder_id', uint16)
+
+
+class CSE_ALifeObjectPhysic(NetPacket):
+
+    def read(self):
+        self.get('type_',           uint32)
+        self.get('mass',            float32)
+        self.get('fixed_bones',     string)
+
+
+class CSE_ALifeObjectHangingLamp(NetPacket):
+
+    def read(self):
+        self.get('color',               uint32)
+        self.get('brightness',          float32)
+        self.get('color_animator',      string)
+        self.get('range_',              float32)
+        self.get('flags',               uint16)
+        self.get('startup_animation',   string)
+        self.get('fixed_bones',         string)
+        self.get('health',              float32)
+        self.get('virtual_size',        float32)
+        self.get('ambient_radius',      float32)
+        self.get('ambient_power',       float32)
+        self.get('ambient_texture',     string)
+        self.get('light_texture',       string)
+        self.get('light_main_bone',     string)
+        self.get('spot_cone_angle',     float32)
+        self.get('glow_texture',        string)
+        self.get('glow_radius',         float32)
+        self.get('light_ambient_bone',  string)
+
+
+class CSE_ALifeSpaceRestrictor(NetPacket):
+
+    def read(self):
+        self.get('space_restrictor_type',  uint8)
+
+
+
+class CSE_ALifeMonsterAbstract(NetPacket):
+
+    def read(self):
+        self.get('out_space_restrictors',   string)
+        self.get('in_space_restrictors',    string)
+        self.get('smart_terrain_id',        uint16)
+        self.get('task_reached',            uint16)
+
+
+class CSE_ALifeMonsterBase(NetPacket):
+
+    def read(self):
+        self.get('spec_object_id',  uint16)
+        self.get('unknown',         uint16)
+
+
+class CALifeHumanBrain(NetPacket):
+
+    def read(self):
+        item_count = self.get('item_count', uint8)
+        for i in range(item_count):
+            self.get('preferences_{}'.format(i), uint8)
+
+
+def _read_cform(self):
+    CForm(self.reader)
+
+
+def cse_alife_object_breakable(reader):
+    Base(reader)
+    CSE_Abstract(reader)
+    CSE_ALifeObject(reader)
+    CSE_Visual(reader)
+    CSE_ALifeObjectBreakable(reader)
+
+
+def cse_alife_object_climable(reader):
+    Base(reader)
+    CSE_Abstract(reader)
+    CSE_ALifeObject(reader)
+    CForm(reader)
+
+
+def cse_alife_creature_actor(reader):
+    Base(reader)
+    CSE_Abstract(reader)
+    CSE_ALifeObject(reader)
+    CSE_Visual(reader)
+    CSE_ALifeCreatureAbstract(reader)
+    CSE_ALifeTraderAbstract(reader)
+    CSE_PHSkeleton(reader)
+    CSE_ALifeCreatureActor(reader)
+
+
+def cse_alife_object_physic(reader):
+    Base(reader)
+    CSE_Abstract(reader)
+    CSE_ALifeObject(reader)
+    CSE_Visual(reader)
+    CSE_PHSkeleton(reader)
+    CSE_ALifeObjectPhysic(reader)
+
+
+def cse_alife_object_hanging_lamp(reader):
+    Base(reader)
+    CSE_Abstract(reader)
+    CSE_ALifeObject(reader)
+    CSE_Visual(reader)
+    CSE_PHSkeleton(reader)
+    CSE_ALifeObjectHangingLamp(reader)
+
+
+def cse_alife_trader(reader):
+    Base(reader)
+    CSE_Abstract(reader)
+    CSE_ALifeObject(reader)
+    CSE_Visual(reader)
+    CSE_ALifeTraderAbstract(reader)
+
+
+def cse_alife_space_restrictor(reader):
+    Base(reader)
+    CSE_Abstract(reader)
+    CSE_ALifeObject(reader)
+    CForm(reader)
+    CSE_ALifeSpaceRestrictor(reader)
+
+
+def cse_alife_monster_base(reader):
+    Base(reader)
+    CSE_Abstract(reader)
+    CSE_ALifeObject(reader)
+    CSE_Visual(reader)
+    CSE_ALifeCreatureAbstract(reader)
+    CSE_ALifeMonsterAbstract(reader)
+    CSE_PHSkeleton(reader)
+    CSE_ALifeMonsterBase(reader)
+
+
+def cse_alife_human_stalker(reader):
+    Base(reader)
+    CSE_Abstract(reader)
+    CSE_ALifeTraderAbstract(reader)
+    CSE_ALifeObject(reader)
+    CSE_Visual(reader)
+    CSE_ALifeCreatureAbstract(reader)
+    CSE_ALifeMonsterAbstract(reader)
+    reader.offset += 16
+    CSE_PHSkeleton(reader)
+    CALifeHumanBrain(reader)
 
 
 class CSE_ALifeDynamicObject(CSE_ALifeObject):
@@ -163,24 +337,6 @@ class CSE_ALifeDynamicObject(CSE_ALifeObject):
         CSE_ALifeObject._read_state(self)
 
         print('CSE_ALifeDynamicObject')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeSpaceRestrictor(CSE_ALifeDynamicObject):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeDynamicObject._read_state(self)
-
-        _read_cform(self)
-
-        print('CSE_ALifeSpaceRestrictor')
-
-        space_restrictor_type = self.reader.uint8()
-        print('space_restrictor_type = {}'.format(space_restrictor_type))
 
         print(len(self.reader.data), self.reader.offset)
 
@@ -235,19 +391,6 @@ class CSE_ALifeAnomalousZone(CSE_ALifeCustomZone):
         print(len(self.reader.data), self.reader.offset)
 
 
-class CSE_Visual:
-    def read_visual(self):
-        print('CSE_Visual')
-
-        visual_name = self.reader.string()
-        print('visual_name = "{}"'.format(visual_name))
-
-        flags = self.reader.uint8()
-        print('flags = {}'.format(flags))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
 class CSE_ALifeDynamicObjectVisual(CSE_ALifeDynamicObject, CSE_Visual):
 
     def _read_update(self):
@@ -258,53 +401,6 @@ class CSE_ALifeDynamicObjectVisual(CSE_ALifeDynamicObject, CSE_Visual):
         CSE_Visual.read_visual(self)
 
         print('CSE_ALifeDynamicObjectVisual')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_PHSkeleton:
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        print('CSE_PHSkeleton')
-
-        startup_animation = self.reader.string()
-        print('startup_animation = "{}"'.format(startup_animation))
-
-        flags = self.reader.uint8()
-        print('flags = {}'.format(flags))
-
-        source_id = self.reader.uint16()
-        print('source_id = {}'.format(source_id))
-
-        if flags & fmt.SkeletonFlags.SavedData:
-
-            # bones data
-            bones_mask = self.reader.uint64()
-            print('bones_mask = {}'.format(bones_mask))
-
-            root_bone = self.reader.uint16()
-            print('root_bone = {}'.format(root_bone))
-
-            linear_vel = self.reader.vec3()
-            print('linear_vel = {}'.format(linear_vel))
-
-            position = self.reader.vec3()
-            print('position = {}'.format(position))
-
-            quaternion = self.reader.vec4()
-            print('quaternion = {}'.format(quaternion))
-
-            enabled = self.reader.uint8()
-            print('enabled = {}'.format(enabled))
-
-            vec_min = self.reader.vec3()
-            print('vec_min = {}'.format(vec_min))
-
-            vec_max = self.reader.vec3()
-            print('vec_max = {}'.format(vec_max))
 
         print(len(self.reader.data), self.reader.offset)
 
@@ -322,95 +418,6 @@ class CSE_ALifeCar(CSE_ALifeDynamicObjectVisual, CSE_PHSkeleton):
 
         health = self.reader.float32()
         print('health = {:.3f}'.format(health))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeCreatureAbstract(CSE_ALifeDynamicObjectVisual):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeDynamicObjectVisual._read_state(self)
-
-        print('CSE_ALifeCreatureAbstract')
-
-        team = self.reader.uint8()
-        print('team = {}'.format(team))
-
-        squad = self.reader.uint8()
-        print('squad = {}'.format(squad))
-
-        group = self.reader.uint8()
-        print('group = {}'.format(group))
-
-        health = self.reader.float32()
-        print('health = {:.3f}'.format(health))
-
-        dynamic_out_restrictions = self.reader.uint32()
-        print('dynamic_out_restrictions = {}'.format(dynamic_out_restrictions))
-
-        dynamic_in_restrictions = self.reader.uint32()
-        print('dynamic_in_restrictions = {}'.format(dynamic_in_restrictions))
-
-        killer_id = self.reader.uint16()
-        print('killer_id = {}'.format(killer_id))
-
-        game_death_time = self.reader.uint64()
-        print('game_death_time = {}'.format(game_death_time))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeTraderAbstract:
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        print('CSE_ALifeTraderAbstract')
-
-        money = self.reader.uint32()
-        print('money = {}'.format(money))
-
-        specific_character = self.reader.string()
-        print('specific_character = "{}"'.format(specific_character))
-
-        trader_flags = self.reader.uint32()
-        print('trader_flags = {}'.format(trader_flags))
-
-        character_profile = self.reader.string()
-        print('character_profile = "{}"'.format(character_profile))
-
-        community_index = self.reader.int32()
-        print('community_index = {}'.format(community_index))
-
-        rank = self.reader.int32()
-        print('rank = {}'.format(rank))
-
-        reputation = self.reader.int32()
-        print('reputation = {}'.format(reputation))
-
-        character_name = self.reader.string()
-        print('character_name = "{}"'.format(character_name))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeCreatureActor(CSE_ALifeCreatureAbstract, CSE_ALifeTraderAbstract, CSE_PHSkeleton):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeCreatureAbstract._read_state(self)
-        CSE_ALifeTraderAbstract._read_state(self)
-        CSE_PHSkeleton._read_state(self)
-
-        print('CSE_ALifeCreatureActor')
-
-        holder_id = self.reader.uint16()
-        print('holder_id = {}'.format(holder_id))
 
         print(len(self.reader.data), self.reader.offset)
 
@@ -485,58 +492,6 @@ class CSE_ALifeSchedulable:
 
     def _read_state(self):
         pass
-
-
-class CSE_ALifeMonsterAbstract(CSE_ALifeCreatureAbstract, CSE_ALifeSchedulable):
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeCreatureAbstract._read_state(self)
-
-        print('CSE_ALifeMonsterAbstract')
-
-        out_space_restrictors = self.reader.string()
-        print('out_space_restrictors = "{}"'.format(out_space_restrictors))
-
-        in_space_restrictors = self.reader.string()
-        print('in_space_restrictors = "{}"'.format(in_space_restrictors))
-
-        smart_terrain_id = self.reader.uint16()
-        print('smart_terrain_id = {}'.format(smart_terrain_id))
-
-        task_reached = self.reader.uint16()
-        print('task_reached = {}'.format(task_reached))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeHumanAbstract(CSE_ALifeTraderAbstract, CSE_ALifeMonsterAbstract):
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeTraderAbstract._read_state(self)
-        read_alife_object(self)
-
-        print('CSE_ALifeHumanAbstract')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeHumanStalker(CSE_ALifeHumanAbstract, CSE_PHSkeleton):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_Abstract._read_state(self)
-        CSE_ALifeHumanAbstract._read_state(self)
-        CSE_PHSkeleton._read_state(self)
-
-        print('CSE_ALifeHumanStalker')
-
-        print(len(self.reader.data), self.reader.offset)
 
 
 class CSE_ALifeInventoryItem():
@@ -813,26 +768,6 @@ class CSE_ALifeLevelChanger(CSE_ALifeSpaceRestrictor):
         print(len(self.reader.data), self.reader.offset)
 
 
-class CSE_ALifeMonsterBase(CSE_ALifeMonsterAbstract, CSE_PHSkeleton):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeMonsterAbstract._read_state(self)
-        CSE_PHSkeleton._read_state(self)
-
-        print('CSE_ALifeMonsterBase')
-
-        spec_object_id = self.reader.uint16()
-        print('spec_object_id = {}'.format(spec_object_id))
-
-        unknown = self.reader.uint16()
-        print('unknown = {}'.format(unknown))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
 class CSE_ALifeMountedWeapon(CSE_ALifeDynamicObjectVisual):
 
     def _read_update(self):
@@ -842,22 +777,6 @@ class CSE_ALifeMountedWeapon(CSE_ALifeDynamicObjectVisual):
         CSE_ALifeDynamicObjectVisual._read_state(self)
 
         print('CSE_ALifeMountedWeapon')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeObjectBreakable(CSE_ALifeDynamicObjectVisual):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeDynamicObjectVisual._read_state(self)
-
-        print('CSE_ALifeObjectBreakable')
-
-        health = self.reader.float32()
-        print('health = {:.3f}'.format(health))
 
         print(len(self.reader.data), self.reader.offset)
 
@@ -883,97 +802,6 @@ class CSE_ALifeObjectClimable(CSE_Shape, CSE_ALifeDynamicObject):
         CSE_Shape._read_state(self)
 
         print('CSE_ALifeObjectClimable')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeObjectHangingLamp(CSE_ALifeDynamicObjectVisual, CSE_PHSkeleton):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeDynamicObjectVisual._read_state(self)
-        CSE_PHSkeleton._read_state(self)
-
-        print('CSE_ALifeObjectHangingLamp')
-
-        color = self.reader.uint32()
-        print('color = {}'.format(color))
-
-        brightness = self.reader.float32()
-        print('brightness = {:.3f}'.format(brightness))
-
-        color_animator = self.reader.string()
-        print('color_animator = "{}"'.format(color_animator))
-
-        range_ = self.reader.float32()
-        print('range = {:.3f}'.format(range_))
-
-        flags = self.reader.uint16()
-        print('flags = {}'.format(flags))
-
-        startup_animation = self.reader.string()
-        print('startup_animation = "{}"'.format(startup_animation))
-
-        fixed_bones = self.reader.string()
-        print('fixed_bones = "{}"'.format(fixed_bones))
-
-        health = self.reader.float32()
-        print('health = {:.3f}'.format(health))
-
-        virtual_size = self.reader.float32()
-        print('virtual_size = {:.3f}'.format(virtual_size))
-
-        ambient_radius = self.reader.float32()
-        print('ambient_radius = {:.3f}'.format(ambient_radius))
-
-        ambient_power = self.reader.float32()
-        print('ambient_power = {:.3f}'.format(ambient_power))
-
-        ambient_texture = self.reader.string()
-        print('ambient_texture = "{}"'.format(ambient_texture))
-
-        light_texture = self.reader.string()
-        print('light_texture = "{}"'.format(light_texture))
-
-        light_main_bone = self.reader.string()
-        print('light_main_bone = "{}"'.format(light_main_bone))
-
-        spot_cone_angle = self.reader.float32()
-        print('spot_cone_angle = {:.3f}'.format(spot_cone_angle))
-
-        glow_texture = self.reader.string()
-        print('glow_texture = "{}"'.format(glow_texture))
-
-        glow_radius = self.reader.float32()
-        print('glow_radius = {:.3f}'.format(glow_radius))
-
-        light_ambient_bone = self.reader.string()
-        print('light_ambient_bone = "{}"'.format(light_ambient_bone))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeObjectPhysic(CSE_ALifeDynamicObjectVisual, CSE_PHSkeleton):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeDynamicObjectVisual._read_state(self)
-        CSE_PHSkeleton._read_state(self)
-
-        print('CSE_ALifeObjectPhysic')
-
-        type_ = self.reader.uint32()
-        print('type = {}'.format(type_))
-
-        mass = self.reader.float32()
-        print('mass = {}'.format(mass))
-
-        fixed_bones = self.reader.string()
-        print('fixed_bones = "{}"'.format(fixed_bones))
 
         print(len(self.reader.data), self.reader.offset)
 
