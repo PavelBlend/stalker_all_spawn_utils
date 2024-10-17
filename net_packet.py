@@ -243,6 +243,15 @@ class CSE_ALifeMonsterBase(NetPacket):
         self.get('unknown',         uint16)
 
 
+class CSE_AlifeHumanStalker(NetPacket):
+    def read(self):
+        job_online = self.get('job_online', uint8)
+        if job_online > 2:
+            self.get('job_online_condlist', string)
+        self.get('was_in_smart_terrain',    uint8)
+        self.get('death_droped',            uint8)
+
+
 class CALifeHumanBrain(NetPacket):
 
     def read(self):
@@ -292,6 +301,16 @@ class CSE_ALifeAnomalousZone(NetPacket):
         self.get('artefact_position_offset',    uint32)
 
 
+class CSE_ALifeItemWeapon(NetPacket):
+
+    def read(self):
+        self.get('current',         uint16)
+        self.get('elapsed',         uint16)
+        self.get('wpn_state',       uint8)
+        self.get('addon_flags',     uint8)
+        self.get('ammo_type',       uint8)
+
+
 def _read_cform(self):
     CForm(self.reader)
 
@@ -311,12 +330,16 @@ def cse_alife_object_climable(reader):
     CForm(reader)
 
 
-def cse_alife_creature_actor(reader):
+def cse_alife_creature_abstract(reader):
     Base(reader)
     CSE_Abstract(reader)
     CSE_ALifeObject(reader)
     CSE_Visual(reader)
     CSE_ALifeCreatureAbstract(reader)
+
+
+def cse_alife_creature_actor(reader):
+    cse_alife_creature_abstract(reader)
     CSE_ALifeTraderAbstract(reader)
     CSE_PHSkeleton(reader)
     CSE_ALifeCreatureActor(reader)
@@ -364,15 +387,11 @@ def cse_alife_level_changer(reader):
 def cse_alife_smart_zone(reader):
     cse_alife_space_restrictor(reader)
 
-    reader.offset += 3    # padding ???
+    reader.offset = len(reader.data)    # padding ???
 
 
 def cse_alife_monster_base(reader):
-    Base(reader)
-    CSE_Abstract(reader)
-    CSE_ALifeObject(reader)
-    CSE_Visual(reader)
-    CSE_ALifeCreatureAbstract(reader)
+    cse_alife_creature_abstract(reader)
     CSE_ALifeMonsterAbstract(reader)
     CSE_PHSkeleton(reader)
     CSE_ALifeMonsterBase(reader)
@@ -388,7 +407,7 @@ def cse_alife_human_stalker(reader):
     CSE_ALifeMonsterAbstract(reader)
     CALifeHumanBrain(reader)
     CSE_PHSkeleton(reader)
-    reader.offset += 3    # padding ???
+    CSE_AlifeHumanStalker(reader)
 
 
 def cse_alife_helicopter(reader):
@@ -409,6 +428,11 @@ def cse_alife_item(reader):
     CSE_ALifeInventoryItem(reader)
 
 
+def cse_alife_item_weapon(reader):
+    cse_alife_item(reader)
+    CSE_ALifeItemWeapon(reader)
+
+
 def cse_alife_anomalous_zone(reader):
     Base(reader)
     CSE_Abstract(reader)
@@ -418,10 +442,7 @@ def cse_alife_anomalous_zone(reader):
     CSE_ALifeCustomZone(reader)
     CSE_ALifeAnomalousZone(reader)
 
-
-def cse_alife_anomalous_zone_2(reader):
-    cse_alife_anomalous_zone(reader)
-    reader.offset += 1    # padding ???
+    reader.offset = len(reader.data)    # ???
 
 
 class CSE_ALifeDynamicObject(CSE_ALifeObject):
@@ -464,19 +485,6 @@ class CSE_ALifeCar(CSE_ALifeDynamicObjectVisual, CSE_PHSkeleton):
 
         health = self.reader.float32()
         print('health = {:.3f}'.format(health))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeCreatureCrow(CSE_ALifeCreatureAbstract):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeCreatureAbstract._read_state(self)
-
-        print('CSE_ALifeCreatureCrow')
 
         print(len(self.reader.data), self.reader.offset)
 
@@ -647,73 +655,6 @@ class CSE_ALifeItemTorch(CSE_ALifeItem):
         CSE_ALifeItem._read_state(self)
 
         print('CSE_ALifeItemTorch')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeItemWeapon(CSE_ALifeItem):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeItem._read_state(self)
-
-        print('CSE_ALifeItemWeapon')
-
-        current = self.reader.uint16()
-        print('current = {}'.format(current))
-
-        elapsed = self.reader.uint16()
-        print('elapsed = {}'.format(elapsed))
-
-        wpn_state = self.reader.uint8()
-        print('wpn_state = {}'.format(wpn_state))
-
-        addon_flags = self.reader.uint8()
-        print('addon_flags = {}'.format(addon_flags))
-
-        ammo_type = self.reader.uint8()
-        print('ammo_type = {}'.format(ammo_type))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeItemWeaponMagazined(CSE_ALifeItemWeapon):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeItemWeapon._read_state(self)
-
-        print('CSE_ALifeItemWeaponMagazined')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeItemWeaponMagazinedWGL(CSE_ALifeItemWeaponMagazined):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeItemWeaponMagazined._read_state(self)
-
-        print('CSE_ALifeItemWeaponMagazinedWGL')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeItemWeaponShotGun(CSE_ALifeItemWeaponMagazined):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeItemWeaponMagazined._read_state(self)
-
-        print('CSE_ALifeItemWeaponShotGun')
 
         print(len(self.reader.data), self.reader.offset)
 
