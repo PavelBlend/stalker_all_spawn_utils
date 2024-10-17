@@ -329,11 +329,15 @@ def _read_cform(self):
     CForm(self.reader)
 
 
-def cse_alife_object_breakable(reader):
+def cse_alife_dynamic_object_visual(reader):
     Base(reader)
     CSE_Abstract(reader)
     CSE_ALifeObject(reader)
     CSE_Visual(reader)
+
+
+def cse_alife_object_breakable(reader):
+    cse_alife_dynamic_object_visual(reader)
     CSE_ALifeObjectBreakable(reader)
 
 
@@ -345,10 +349,7 @@ def cse_alife_object_climable(reader):
 
 
 def cse_alife_creature_abstract(reader):
-    Base(reader)
-    CSE_Abstract(reader)
-    CSE_ALifeObject(reader)
-    CSE_Visual(reader)
+    cse_alife_dynamic_object_visual(reader)
     CSE_ALifeCreatureAbstract(reader)
 
 
@@ -360,28 +361,19 @@ def cse_alife_creature_actor(reader):
 
 
 def cse_alife_object_physic(reader):
-    Base(reader)
-    CSE_Abstract(reader)
-    CSE_ALifeObject(reader)
-    CSE_Visual(reader)
+    cse_alife_dynamic_object_visual(reader)
     CSE_PHSkeleton(reader)
     CSE_ALifeObjectPhysic(reader)
 
 
 def cse_alife_object_hanging_lamp(reader):
-    Base(reader)
-    CSE_Abstract(reader)
-    CSE_ALifeObject(reader)
-    CSE_Visual(reader)
+    cse_alife_dynamic_object_visual(reader)
     CSE_PHSkeleton(reader)
     CSE_ALifeObjectHangingLamp(reader)
 
 
 def cse_alife_trader(reader):
-    Base(reader)
-    CSE_Abstract(reader)
-    CSE_ALifeObject(reader)
-    CSE_Visual(reader)
+    cse_alife_dynamic_object_visual(reader)
     CSE_ALifeTraderAbstract(reader)
 
 
@@ -425,20 +417,14 @@ def cse_alife_human_stalker(reader):
 
 
 def cse_alife_helicopter(reader):
-    Base(reader)
-    CSE_Abstract(reader)
-    CSE_ALifeObject(reader)
-    CSE_Visual(reader)
+    cse_alife_dynamic_object_visual(reader)
     CSE_Motion(reader)
     CSE_PHSkeleton(reader)
     CSE_ALifeHelicopter(reader)
 
 
 def cse_alife_item(reader):
-    Base(reader)
-    CSE_Abstract(reader)
-    CSE_ALifeObject(reader)
-    CSE_Visual(reader)
+    cse_alife_dynamic_object_visual(reader)
     CSE_ALifeInventoryItem(reader)
 
 

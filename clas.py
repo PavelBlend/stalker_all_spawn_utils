@@ -118,7 +118,7 @@ net_packet_by_class = {
     'O_CLMBL'               :    net_packet.cse_alife_object_climable,
     'P_SKELET'              :    net_packet.CSE_ALifePHSkeletonObject,
     'P_DSTRBL'              :    net_packet.cse_alife_object_physic,
-    'O_INVBOX'              :    net_packet.CSE_InventoryBox,
+    'O_INVBOX'              :    net_packet.cse_alife_dynamic_object_visual,
     'SCRPTART'              :    net_packet.cse_alife_item,
     'TORCH_S'               :    net_packet.CSE_ALifeItemTorch,
     'E_STLK'                :    net_packet.cse_alife_item,
