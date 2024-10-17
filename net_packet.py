@@ -215,6 +215,17 @@ class CSE_ALifeSpaceRestrictor(NetPacket):
         self.get('space_restrictor_type',  uint8)
 
 
+class CSE_ALifeLevelChanger(NetPacket):
+
+    def read(self):
+        self.get('next_graph_id',  uint16)
+        self.get('next_node_id',  uint32)
+        self.get('next_position',  vec3)
+        self.get('angles',  vec3)
+        self.get('level_to_change',  string)
+        self.get('level_point_to_change',  string)
+        self.get('silent_mode',  uint8)
+
 
 class CSE_ALifeMonsterAbstract(NetPacket):
 
@@ -222,7 +233,7 @@ class CSE_ALifeMonsterAbstract(NetPacket):
         self.get('out_space_restrictors',   string)
         self.get('in_space_restrictors',    string)
         self.get('smart_terrain_id',        uint16)
-        self.get('task_reached',            uint16)
+        self.get('task_reached',            uint8)
 
 
 class CSE_ALifeMonsterBase(NetPacket):
@@ -235,9 +246,50 @@ class CSE_ALifeMonsterBase(NetPacket):
 class CALifeHumanBrain(NetPacket):
 
     def read(self):
-        item_count = self.get('item_count', uint8)
-        for i in range(item_count):
-            self.get('preferences_{}'.format(i), uint8)
+        equipment_preference_count = self.get('item_count', uint32)
+        for i in range(equipment_preference_count):
+            self.get('equipment_preference_{}'.format(i), uint8)
+
+        weapon_preferences_count = self.get('item_count', uint32)
+        for i in range(weapon_preferences_count):
+            self.get('weapon_preferences_{}'.format(i), uint8)
+
+
+class CSE_ALifeHelicopter(NetPacket):
+
+    def read(self):
+        self.get('startup_animation',   string)
+        self.get('engine_sound',        string)
+
+
+class CSE_Motion(NetPacket):
+
+    def read(self):
+        self.get('motion_name', string)
+
+
+class CSE_ALifeInventoryItem(NetPacket):
+
+    def read(self):
+        self.get('condition', float32)
+
+
+class CSE_ALifeCustomZone(NetPacket):
+
+    def read(self):
+        self.get('max_power',           float32)
+        self.get('owner_id',            uint32)
+        self.get('enabled_time',        uint32)
+        self.get('disabled_time',       uint32)
+        self.get('start_time_shift',    uint32)
+
+
+class CSE_ALifeAnomalousZone(NetPacket):
+
+    def read(self):
+        self.get('offline_interactive_radius',  float32)
+        self.get('artefact_spawn_count',        uint16)
+        self.get('artefact_position_offset',    uint32)
 
 
 def _read_cform(self):
@@ -304,6 +356,17 @@ def cse_alife_space_restrictor(reader):
     CSE_ALifeSpaceRestrictor(reader)
 
 
+def cse_alife_level_changer(reader):
+    cse_alife_space_restrictor(reader)
+    CSE_ALifeLevelChanger(reader)
+
+
+def cse_alife_smart_zone(reader):
+    cse_alife_space_restrictor(reader)
+
+    reader.offset += 3    # padding ???
+
+
 def cse_alife_monster_base(reader):
     Base(reader)
     CSE_Abstract(reader)
@@ -323,9 +386,42 @@ def cse_alife_human_stalker(reader):
     CSE_Visual(reader)
     CSE_ALifeCreatureAbstract(reader)
     CSE_ALifeMonsterAbstract(reader)
-    reader.offset += 16
-    CSE_PHSkeleton(reader)
     CALifeHumanBrain(reader)
+    CSE_PHSkeleton(reader)
+    reader.offset += 3    # padding ???
+
+
+def cse_alife_helicopter(reader):
+    Base(reader)
+    CSE_Abstract(reader)
+    CSE_ALifeObject(reader)
+    CSE_Visual(reader)
+    CSE_Motion(reader)
+    CSE_PHSkeleton(reader)
+    CSE_ALifeHelicopter(reader)
+
+
+def cse_alife_item(reader):
+    Base(reader)
+    CSE_Abstract(reader)
+    CSE_ALifeObject(reader)
+    CSE_Visual(reader)
+    CSE_ALifeInventoryItem(reader)
+
+
+def cse_alife_anomalous_zone(reader):
+    Base(reader)
+    CSE_Abstract(reader)
+    CSE_ALifeObject(reader)
+    CForm(reader)
+    CSE_ALifeSpaceRestrictor(reader)
+    CSE_ALifeCustomZone(reader)
+    CSE_ALifeAnomalousZone(reader)
+
+
+def cse_alife_anomalous_zone_2(reader):
+    cse_alife_anomalous_zone(reader)
+    reader.offset += 1    # padding ???
 
 
 class CSE_ALifeDynamicObject(CSE_ALifeObject):
@@ -337,56 +433,6 @@ class CSE_ALifeDynamicObject(CSE_ALifeObject):
         CSE_ALifeObject._read_state(self)
 
         print('CSE_ALifeDynamicObject')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeCustomZone(CSE_ALifeSpaceRestrictor):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeSpaceRestrictor._read_state(self)
-
-        print('CSE_ALifeCustomZone')
-
-        max_power = self.reader.float32()
-        print('max_power = {:.3f}'.format(max_power))
-
-        owner_id = self.reader.uint32()
-        print('owner_id = {}'.format(owner_id))
-
-        enabled_time = self.reader.uint32()
-        print('enabled_time = {}'.format(enabled_time))
-
-        disabled_time = self.reader.uint32()
-        print('disabled_time = {}'.format(disabled_time))
-
-        start_time_shift = self.reader.uint32()
-        print('start_time_shift = {}'.format(start_time_shift))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeAnomalousZone(CSE_ALifeCustomZone):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeCustomZone._read_state(self)
-
-        print('CSE_ALifeAnomalousZone')
-
-        offline_interactive_radius = self.reader.float32()
-        print('offline_interactive_radius = {:.3f}'.format(offline_interactive_radius))
-
-        artefact_spawn_count = self.reader.uint16()
-        print('artefact_spawn_count = {}'.format(artefact_spawn_count))
-
-        artefact_position_offset = self.reader.uint32()
-        print('artefact_position_offset = {}'.format(artefact_position_offset))
 
         print(len(self.reader.data), self.reader.offset)
 
@@ -448,44 +494,6 @@ class CSE_ALifeCreaturePhantom(CSE_ALifeCreatureAbstract):
         print(len(self.reader.data), self.reader.offset)
 
 
-class CSE_Motion:
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        pass
-
-    def read_motion(self):
-        print('CSE_Motion')
-
-        motion_name = self.reader.string()
-        print('motion_name = "{}"'.format(motion_name))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeHelicopter(CSE_ALifeDynamicObjectVisual, CSE_Motion, CSE_PHSkeleton):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeDynamicObjectVisual._read_state(self)
-        CSE_Motion.read_motion(self)
-        CSE_PHSkeleton._read_state(self)
-
-        print('CSE_ALifeHelicopter')
-
-        startup_animation = self.reader.string()
-        print('startup_animation = "{}"'.format(startup_animation))
-
-        engine_sound = self.reader.string()
-        print('engine_sound = "{}"'.format(engine_sound))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
 class CSE_ALifeSchedulable:
     def _read_update(self):
         pass
@@ -494,32 +502,8 @@ class CSE_ALifeSchedulable:
         pass
 
 
-class CSE_ALifeInventoryItem():
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        print('CSE_ALifeInventoryItem')
-
-        condition = self.reader.float32()
-        print('condition = {}'.format(condition))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeItem(CSE_ALifeDynamicObjectVisual, CSE_ALifeInventoryItem):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeDynamicObjectVisual._read_state(self)
-        CSE_ALifeInventoryItem._read_state(self)
-
-        print('CSE_ALifeItem')
-
-        print(len(self.reader.data), self.reader.offset)
+class CSE_ALifeItem:
+    pass
 
 
 class CSE_ALifeItemAmmo(CSE_ALifeItem):
@@ -730,40 +714,6 @@ class CSE_ALifeItemWeaponShotGun(CSE_ALifeItemWeaponMagazined):
         CSE_ALifeItemWeaponMagazined._read_state(self)
 
         print('CSE_ALifeItemWeaponShotGun')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeLevelChanger(CSE_ALifeSpaceRestrictor):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeSpaceRestrictor._read_state(self)
-
-        print('CSE_ALifeLevelChanger')
-
-        next_graph_id = self.reader.uint16()
-        print('next_graph_id = {}'.format(next_graph_id))
-
-        next_node_id = self.reader.uint32()
-        print('next_node_id = {}'.format(next_node_id))
-
-        next_position = self.reader.vec3()
-        print('next_position = {:.3f}, {:.3f}, {:.3f}'.format(*next_position))
-
-        angles = self.reader.vec3()
-        print('angles = {:.3f}, {:.3f}, {:.3f}'.format(*angles))
-
-        level_to_change = self.reader.string()
-        print('level_to_change = "{}"'.format(level_to_change))
-
-        level_point_to_change = self.reader.string()
-        print('level_point_to_change = "{}"'.format(level_point_to_change))
-
-        silent_mode = self.reader.uint8()
-        print('silent_mode = {}'.format(silent_mode))
 
         print(len(self.reader.data), self.reader.offset)
 

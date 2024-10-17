@@ -23,7 +23,7 @@ def read_net_packet(data, classes):
         print('\n'*10)
 
         if len(reader.data) != reader.offset:
-            print(reader.offset)
+            print(reader.offset, len(reader.data))
             raise Exception('offset')
 
     except:
@@ -38,10 +38,11 @@ def read_net_packet(data, classes):
     if clas_name not in a:
         if clas_name not in (
                 'O_BRKBL', 'O_CLMBL', 'O_ACTOR', 'O_PHYS_S', 'O_HLAMP',
-                'AI_TRD_S', 'SPC_RS_S', 'SM_FLESH', 
+                'AI_TRD_S', 'SPC_RS_S', 'SM_FLESH', 'AI_STL_S', 'SMRTTRRN',
+                'C_HLCP_S', 'AI_DOG_R', ''
                 ):
             print(clas_name)
-            input()
+            # input()
     a.add(clas_name)
 
 
