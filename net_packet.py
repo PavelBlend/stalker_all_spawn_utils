@@ -116,14 +116,14 @@ class CForm(NetPacket):
         shapes_count = self.get('shapes_count', uint8)
 
         for shape_index in range(shapes_count):
-            shape_type = self.get('shape_type', uint8)
+            shape_type = self.get('shape_type_{}'.format(shape_index), uint8)
 
             if shape_type == 0:    # sphere
-                self.get('position',    vec3)
-                self.get('radius',      float32)
+                self.get('position_{}'.format(shape_index),    vec3)
+                self.get('radius_{}'.format(shape_index),      float32)
 
             else:    # box
-                self.get('matrix', matrix3x4)
+                self.get('matrix_{}'.format(shape_index), matrix3x4)
 
 
 class CSE_PHSkeleton(NetPacket):
@@ -311,18 +311,32 @@ class CSE_ALifeItemWeapon(NetPacket):
         self.get('ammo_type',       uint8)
 
 
-class CSE_ALifeItemAmmo(NetPacket):
-
-    def read(self):
-        self.get('elapsed', uint16)
-
-
 class CSE_AlifeSmartZone(NetPacket):
 
     def read(self):
         table_size = self.get('table_size', uint8)
         for i in range(table_size):
             self.get('spawned_obj_{}'.format(i), uint16)
+
+
+class CSE_ALifeZoneVisual(NetPacket):
+
+    def read(self):
+        self.get('startup_animation',   string)
+        self.get('attack_animation',    string)
+        self.get('flag',                uint8)
+
+
+class CSE_ALifeItemAmmo(NetPacket):
+
+    def read(self):
+        self.get('elapsed', uint16)
+
+
+class CSE_ALifeCar(NetPacket):
+
+    def read(self):
+        self.get('health', float32)
 
 
 def _read_cform(self):
@@ -423,6 +437,12 @@ def cse_alife_helicopter(reader):
     CSE_ALifeHelicopter(reader)
 
 
+def cse_alife_car(reader):
+    cse_alife_dynamic_object_visual(reader)
+    CSE_PHSkeleton(reader)
+    CSE_ALifeCar(reader)
+
+
 def cse_alife_item(reader):
     cse_alife_dynamic_object_visual(reader)
     CSE_ALifeInventoryItem(reader)
@@ -439,401 +459,22 @@ def cse_alife_item_ammo(reader):
 
 
 def cse_alife_anomalous_zone(reader):
-    Base(reader)
-    CSE_Abstract(reader)
-    CSE_ALifeObject(reader)
-    CForm(reader)
-    CSE_ALifeSpaceRestrictor(reader)
+    cse_alife_space_restrictor(reader)
     CSE_ALifeCustomZone(reader)
     CSE_ALifeAnomalousZone(reader)
 
     reader.offset = len(reader.data)    # ???
 
 
-class CSE_ALifeDynamicObject(CSE_ALifeObject):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeObject._read_state(self)
-
-        print('CSE_ALifeDynamicObject')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeDynamicObjectVisual(CSE_ALifeDynamicObject, CSE_Visual):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeDynamicObject._read_state(self)
-        CSE_Visual.read_visual(self)
-
-        print('CSE_ALifeDynamicObjectVisual')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeCar(CSE_ALifeDynamicObjectVisual, CSE_PHSkeleton):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeDynamicObjectVisual._read_state(self)
-        CSE_PHSkeleton._read_state(self)
-
-        print('CSE_ALifeCar')
-
-        health = self.reader.float32()
-        print('health = {:.3f}'.format(health))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeCreaturePhantom(CSE_ALifeCreatureAbstract):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeCreatureAbstract._read_state(self)
-
-        print('CSE_ALifeCreaturePhantom')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeSchedulable:
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        pass
-
-
-class CSE_ALifeItem:
-    pass
-
-
-class CSE_ALifeItemBolt(CSE_ALifeItem):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeItem._read_state(self)
-
-        print('CSE_ALifeItemBolt')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeItemCustomOutfit(CSE_ALifeItem):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeItem._read_state(self)
-
-        print('CSE_ALifeItemCustomOutfit')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeItemDetector(CSE_ALifeItem):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeItem._read_state(self)
-
-        print('CSE_ALifeItemDetector')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeItemDocument(CSE_ALifeItem):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeItem._read_state(self)
-
-        print('CSE_ALifeItemDetector')
-
-        doc = self.reader.string()
-        print('doc = "{}"'.format(doc))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeItemExplosive(CSE_ALifeItem):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeItem._read_state(self)
-
-        print('CSE_ALifeItemExplosive')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeItemGrenade(CSE_ALifeItem):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeItem._read_state(self)
-
-        print('CSE_ALifeItemGrenade')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeItemPDA(CSE_ALifeItem):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeItem._read_state(self)
-
-        print('CSE_ALifeItemGrenade')
-
-        original_owner = self.reader.uint16()
-        print('original_owner = {}'.format(original_owner))
-
-        specific_character = self.reader.string()
-        print('specific_character = "{}"'.format(specific_character))
-
-        info_portion = self.reader.string()
-        print('info_portion = "{}"'.format(info_portion))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeItemTorch(CSE_ALifeItem):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeItem._read_state(self)
-
-        print('CSE_ALifeItemTorch')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeMountedWeapon(CSE_ALifeDynamicObjectVisual):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeDynamicObjectVisual._read_state(self)
-
-        print('CSE_ALifeMountedWeapon')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_Shape:
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        _read_cform(self)
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeObjectClimable(CSE_Shape, CSE_ALifeDynamicObject):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeDynamicObject._read_state(self)
-        CSE_Shape._read_state(self)
-
-        print('CSE_ALifeObjectClimable')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeObjectProjector(CSE_ALifeDynamicObjectVisual):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        pass
-
-
-class CSE_ALifePHSkeletonObject(CSE_ALifeDynamicObjectVisual, CSE_PHSkeleton):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeDynamicObjectVisual._read_state(self)
-        CSE_PHSkeleton._read_state(self)
-
-        print('CSE_ALifePHSkeletonObject')
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifePsyDogPhantom(CSE_ALifeMonsterBase):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        pass
-
-
-class CSE_ALifeSmartZone(CSE_ALifeSpaceRestrictor, CSE_ALifeSchedulable):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        pass
-
-
-class CSE_ALifeStationaryMgun(CSE_ALifeDynamicObjectVisual):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        pass
-
-
-class CSE_ALifeTeamBaseZone(CSE_ALifeSpaceRestrictor):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        pass
-
-
-class CSE_ALifeTorridZone(CSE_ALifeCustomZone):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        pass
-
-
-class CSE_ALifeTrader(CSE_ALifeDynamicObjectVisual, CSE_ALifeTraderAbstract):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeDynamicObjectVisual._read_state(self)
-        CSE_ALifeTraderAbstract._read_state(self)
-
-        print('CSE_ALifeTrader')
-
-
-class CSE_ALifeZoneVisual(CSE_ALifeAnomalousZone, CSE_Visual):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        pass
-
-
-class CSE_InventoryBox(CSE_ALifeDynamicObjectVisual):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        pass
-
-
-class CSE_Spectator(CSE_Abstract):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        return
-
-
-class CSE_Temporary(CSE_Abstract):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        node_id = self.reader.uint32()
-
-
-class CSE_AbstractVisual(CSE_Abstract, CSE_Visual):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        print('CSE_AbstractVisual')
-
-        visual_name = self.reader.string()
-        flags = self.reader.uint8()
-        startup_animation = self.reader.string()
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeGraphPoint(CSE_Abstract):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        print('CSE_ALifeGraphPoint')
-
-        connection_point_name = self.reader.string()
-        connection_level_name = self.reader.string()
-
-        location_1 = self.reader.uint8()
-        location_2 = self.reader.uint8()
-        location_3 = self.reader.uint8()
-        location_4 = self.reader.uint8()
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeGroupAbstract(CSE_Abstract):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        print('CSE_ALifeGroupAbstract')
-
-        create_spawn_positions = self.reader.uint32()
-        count = self.reader.uint16()
-        # E:\disk_x\trunk\xray\xr_3da\xrGame\xrServer_Objects_ALife.cpp line: 513
-        # save data
-
-        print(len(self.reader.data), self.reader.offset)
+def cse_alife_zone_visual(reader):
+    cse_alife_space_restrictor(reader)
+    CSE_ALifeCustomZone(reader)
+    CSE_ALifeAnomalousZone(reader)
+    CSE_Visual(reader)
+    CSE_ALifeZoneVisual(reader)
+
+
+def cse_alife_torrid_zone(reader):
+    cse_alife_space_restrictor(reader)
+    CSE_ALifeCustomZone(reader)
+    CSE_Motion(reader)
