@@ -19,6 +19,7 @@ def read_net_packet(data, classes):
 
     try:
         print('\n'*10)
+        print(packet)
         packet(reader)
         print('\n'*10)
 

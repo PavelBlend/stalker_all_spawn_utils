@@ -311,6 +311,20 @@ class CSE_ALifeItemWeapon(NetPacket):
         self.get('ammo_type',       uint8)
 
 
+class CSE_ALifeItemAmmo(NetPacket):
+
+    def read(self):
+        self.get('elapsed', uint16)
+
+
+class CSE_AlifeSmartZone(NetPacket):
+
+    def read(self):
+        table_size = self.get('table_size', uint8)
+        for i in range(table_size):
+            self.get('spawned_obj_{}'.format(i), uint16)
+
+
 def _read_cform(self):
     CForm(self.reader)
 
@@ -386,8 +400,8 @@ def cse_alife_level_changer(reader):
 
 def cse_alife_smart_zone(reader):
     cse_alife_space_restrictor(reader)
-
-    reader.offset = len(reader.data)    # padding ???
+    CSE_AlifeSmartZone(reader)
+    reader.offset = len(reader.data)
 
 
 def cse_alife_monster_base(reader):
@@ -431,6 +445,11 @@ def cse_alife_item(reader):
 def cse_alife_item_weapon(reader):
     cse_alife_item(reader)
     CSE_ALifeItemWeapon(reader)
+
+
+def cse_alife_item_ammo(reader):
+    cse_alife_item(reader)
+    CSE_ALifeItemAmmo(reader)
 
 
 def cse_alife_anomalous_zone(reader):
@@ -512,35 +531,6 @@ class CSE_ALifeSchedulable:
 
 class CSE_ALifeItem:
     pass
-
-
-class CSE_ALifeItemAmmo(CSE_ALifeItem):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeItem._read_state(self)
-
-        print('CSE_ALifeItemAmmo')
-
-        elapsed = self.reader.uint16()
-        print('elapsed = {}'.format(elapsed))
-
-        print(len(self.reader.data), self.reader.offset)
-
-
-class CSE_ALifeItemArtefact(CSE_ALifeItem):
-
-    def _read_update(self):
-        pass
-
-    def _read_state(self):
-        CSE_ALifeItem._read_state(self)
-
-        print('CSE_ALifeItemArtefact')
-
-        print(len(self.reader.data), self.reader.offset)
 
 
 class CSE_ALifeItemBolt(CSE_ALifeItem):
