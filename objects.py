@@ -4,9 +4,6 @@ import net_packet
 import clas
 
 
-a = set()
-
-
 def read_net_packet(data, classes):
     reader = read.Reader(data)
 
@@ -34,17 +31,6 @@ def read_net_packet(data, classes):
         '''with open(section_name, 'wb') as file:
             file.write(data)'''
         raise Exception('stop')
-
-    global a
-    if clas_name not in a:
-        if clas_name not in (
-                'O_BRKBL', 'O_CLMBL', 'O_ACTOR', 'O_PHYS_S', 'O_HLAMP',
-                'AI_TRD_S', 'SPC_RS_S', 'SM_FLESH', 'AI_STL_S', 'SMRTTRRN',
-                'C_HLCP_S', 'AI_DOG_R', ''
-                ):
-            print(clas_name)
-            # input()
-    a.add(clas_name)
 
 
 def read_object_body(data, classes):
