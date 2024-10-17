@@ -5,6 +5,7 @@ class Reader:
     def __init__(self, data):
         self.data = data
         self.offset = 0
+        self.props = []
 
     def uint8(self):
         value = struct.unpack_from('<B', self.data, self.offset)[0]

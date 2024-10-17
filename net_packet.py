@@ -17,7 +17,6 @@ get_bytes = 'get_bytes'
 class NetPacket:
     def __init__(self, reader):
         self.reader = reader
-        self.props = []
         self.read()
         self.debug()
 
@@ -27,19 +26,22 @@ class NetPacket:
     def get(self, name, fmt, *args):
         read_fun = getattr(self.reader, fmt, None)
         value = read_fun(*args)
-        self.props.append([name, value])
+        self.reader.props.append([name, value])
         return value
 
     def debug(self):
+        return
+        '''
         print('-'*79)
         print(self.__class__.__name__)
         print()
-        for name, value in self.props:
+        for name, value in self.reader.props:
             print('{0} = {1}'.format(name, value))
         print()
         print(len(self.reader.data), self.reader.offset)
         print('-'*79)
         print('\n'*3)
+        '''
 
 
 class Base(NetPacket):
