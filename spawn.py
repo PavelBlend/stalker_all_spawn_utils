@@ -2,6 +2,7 @@ import read
 import utils
 import header
 import objects
+import net_packet
 import level_points
 import fmt
 import config
@@ -36,5 +37,21 @@ def parse_spawn(packets, file_path):
 
 
 file_path = 'D:\\E\\soc\\gamedata_unpack\\spawns\\all.spawn'
-packets = {}
+packets = []
 parse_spawn(packets, file_path)
+
+for obj_id, sect, obj, packet in packets:
+    print('[{}]'.format(obj_id))
+
+    for name, value, fmt in packet.props:
+
+        if fmt == net_packet.string:
+            print('{0} = "{1}"'.format(name, value))
+
+        elif fmt == net_packet.vec3:
+            print('{0} = {1}, {2}, {3}'.format(name, *value))
+
+        else:
+            print('{0} = {1}'.format(name, value))
+
+    print('\n'*3)

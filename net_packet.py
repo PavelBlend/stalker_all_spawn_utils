@@ -26,7 +26,7 @@ class NetPacket:
     def get(self, name, fmt, *args):
         read_fun = getattr(self.reader, fmt, None)
         value = read_fun(*args)
-        self.reader.props.append([name, value])
+        self.reader.props.append([name, value, fmt])
         return value
 
     def debug(self):

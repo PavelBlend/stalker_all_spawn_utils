@@ -4,10 +4,7 @@ import net_packet
 import clas
 
 
-packets = {}
-
-
-def read_net_packet(packets, data, classes):
+def read_net_packet(data, classes):
     # create reader
     reader = read.Reader(data)
 
@@ -24,20 +21,24 @@ def read_net_packet(packets, data, classes):
     p = packet(reader)
 
     obj_name = None
-    for name, value in reader.props:
+    for name, value, fmt in reader.props:
         if name == 'name':
             obj_name = value
 
-    packets[(section_name, obj_name)] = reader
+    return section_name, obj_name, reader
 
 
-def read_object_body(packets, data, classes):
+def read_object_body(data, classes):
+    sect = None
+    obj = None
+    packet = None
+
     chunks = read.Chunks(data)
 
     for chunk_id, chunk_data in chunks:
 
         if chunk_id == fmt.NetPackedChunks.SPAWN:
-            read_net_packet(packets, chunk_data, classes)
+            sect, obj, packet = read_net_packet(chunk_data, classes)
 
         elif chunk_id == fmt.NetPackedChunks.UPDATE:
             # read_net_packet(chunk_data, classes)
@@ -46,10 +47,13 @@ def read_object_body(packets, data, classes):
         else:
             raise BaseException('read_object_body chunk')
 
+    return sect, obj, packet
+
 
 def read_object_id(data):
     reader = read.Reader(data)
     object_id = reader.uint16()
+    return object_id
 
 
 def read_spawn_object(packets, data, classes):
@@ -58,13 +62,15 @@ def read_spawn_object(packets, data, classes):
     for chunk_id, chunk_data in chunks:
 
         if chunk_id == fmt.SpawnObjectChunks.OBJECT_ID:
-            read_object_id(chunk_data)
+            obj_id = read_object_id(chunk_data)
 
         elif chunk_id == fmt.SpawnObjectChunks.OBJECT_BODY:
-            read_object_body(packets, chunk_data, classes)
+            sect, obj, packet = read_object_body(chunk_data, classes)
 
         else:
             raise BaseException('read_spawn_object chunk')
+
+    packets.append((obj_id, sect, obj, packet))
 
 
 def read_spawn_objects(packets, data, classes):
