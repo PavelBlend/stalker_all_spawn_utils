@@ -43,15 +43,21 @@ parse_spawn(packets, file_path)
 for obj_id, sect, obj, packet in packets:
     print('[{}]'.format(obj_id))
 
-    for name, value, fmt in packet.props:
+    for name, value, type_ in packet.props:
 
-        if fmt == net_packet.string:
+        if name == 'game_type':
+            value = fmt.GAME_ID[value]
             print('{0} = "{1}"'.format(name, value))
 
-        elif fmt == net_packet.vec3:
-            print('{0} = {1}, {2}, {3}'.format(name, *value))
-
         else:
-            print('{0} = {1}'.format(name, value))
+
+            if type_ == net_packet.string:
+                print('{0} = "{1}"'.format(name, value))
+
+            elif type_ == net_packet.vec3:
+                print('{0} = {1}, {2}, {3}'.format(name, *value))
+
+            else:
+                print('{0} = {1}'.format(name, value))
 
     print('\n'*3)

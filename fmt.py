@@ -35,6 +35,16 @@ class GameID:
     ARTEFACTHUNT = 7
 
 
+GAME_ID = {
+    GameID.ANY             :   'Any',
+    GameID.SINGLE          :   'Single',
+    GameID.DEATHMATCH      :   'Death Match',
+    GameID.CS              :   'CS',
+    GameID.TEAMDEATHMATCH  :   'Team Death Match',
+    GameID.ARTEFACTHUNT    :   'Artefact Hunt'
+}
+
+
 class SpawnFlags:
     OBJECT_LOCAL        = 1 << 0    # after spawn it becomes local (authorative)
     OBJECT_HAS_UPDATE   = 1 << 2    # after spawn info it has update inside message
@@ -45,11 +55,31 @@ class SpawnFlags:
     TIME                = 1 << 7    # + spawn time
 
 
+class VisualFlags:
+    OBSTACLE    = 1 << 0
+
+
 class SkeletonFlags:
     Active      = 1 << 0
     SpawnCopy   = 1 << 1
     SavedData   = 1 << 2
     NotSave     = 1 << 3
+
+
+class ALifeObjectFlags:
+    USE_SWITCHES            = 1 << 0
+    SWITCH_ONLINE           = 1 << 1
+    SWITCH_OFFLINE          = 1 << 2
+    INTERACTIVE             = 1 << 3
+    VISIBLE_FOR_AI          = 1 << 4
+    USEFUL_FOR_AI           = 1 << 5
+    OFFLINE_NO_MOVE         = 1 << 6
+    USED_AI_LOCATIONS       = 1 << 7
+    GROUP_BEHAVIOUR         = 1 << 8
+    CAN_SAVE                = 1 << 9
+    VISIBLE_FOR_MAP         = 1 << 10
+    USE_SMART_TERRAINS      = 1 << 11
+    CHECK_FOR_SEPARATOR     = 1 << 12
 
 
 XR_AI_VERSION = 8

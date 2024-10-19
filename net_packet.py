@@ -18,20 +18,22 @@ class NetPacket:
     def __init__(self, reader):
         self.reader = reader
         self.read()
-        self.debug()
+        # self.debug()
 
     def read(self):
         raise NotImplementedError
 
-    def get(self, name, fmt, *args):
+    def get(self, name, fmt, *args, append=True):
         read_fun = getattr(self.reader, fmt, None)
         value = read_fun(*args)
-        self.reader.props.append([name, value, fmt])
+        if append:
+            self.reader.props.append([name, value, fmt])
         return value
 
+    def append(self, name, value, fmt):
+        self.reader.props.append([name, value, fmt])
+
     def debug(self):
-        return
-        '''
         print('-'*79)
         print(self.__class__.__name__)
         print()
@@ -41,7 +43,6 @@ class NetPacket:
         print(len(self.reader.data), self.reader.offset)
         print('-'*79)
         print('\n'*3)
-        '''
 
 
 class Base(NetPacket):
@@ -66,7 +67,7 @@ class CSE_Abstract(NetPacket):
         self.get            ('object_id',           uint16)
         self.get            ('id_parent',           uint16)
         self.get            ('id_phantom',          uint16)
-        flags = self.get    ('flags',               uint16)
+        flags = self.get    ('flags',               uint16, append=False)
 
         obj_local       = flags & fmt.SpawnFlags.OBJECT_LOCAL
         obj_upd         = flags & fmt.SpawnFlags.OBJECT_HAS_UPDATE
@@ -75,6 +76,14 @@ class CSE_Abstract(NetPacket):
         check_ver       = flags & fmt.SpawnFlags.VERSION
         update_packet   = flags & fmt.SpawnFlags.UPDATE
         spawn_time      = flags & fmt.SpawnFlags.TIME
+
+        self.append('object_local',         bool(obj_local),            'flags')
+        self.append('object_upd',           bool(obj_upd),           'flags')
+        self.append('object_as_player',     bool(obj_as_player),     'flags')
+        self.append('object_phantom',       bool(obj_phantom),       'flags')
+        self.append('check_version',        bool(check_ver),        'flags')
+        self.append('update_packet',        bool(update_packet),        'flags')
+        self.append('spawn_time',           bool(spawn_time),           'flags')
 
         if check_ver:
             self.get('version', uint16)
@@ -90,7 +99,9 @@ class CSE_Visual(NetPacket):
 
     def read(self):
         self.get('visual_name', string)
-        self.get('flags',       uint8)
+        flags = self.get('flags',       uint8, append=False)
+        obstacle = flags & fmt.VisualFlags.OBSTACLE
+        self.append('obstacle', bool(obstacle), 'flags')
 
 
 class CSE_ALifeObject(NetPacket):
@@ -100,7 +111,11 @@ class CSE_ALifeObject(NetPacket):
         self.get('distance',        float32)
         self.get('direct_control',  uint32)
         self.get('node_id',         uint32)
-        self.get('flags',           uint32)
+
+        flags = self.get('flags',           uint32, append=False)
+
+        
+
         self.get('ini_string',      string)
         self.get('story_id',        uint32)
         self.get('spawn_story_id',  uint32)
