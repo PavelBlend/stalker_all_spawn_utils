@@ -15,6 +15,9 @@ get_bytes = 'get_bytes'
 comment = 'comment'
 
 
+###############################################################################
+
+
 class NetPacket:
     def __init__(self, reader):
         self.reader = reader
@@ -46,6 +49,9 @@ class NetPacket:
         print(len(self.reader.data), self.reader.offset)
         print('-'*79)
         print('\n'*3)
+
+
+###############################################################################
 
 
 class Base(NetPacket):
@@ -411,8 +417,7 @@ class CSE_ALifeCar(NetPacket):
         self.get('health', float32)
 
 
-def _read_cform(self):
-    CForm(self.reader)
+###############################################################################
 
 
 def cse_alife_dynamic_object_visual(reader):
@@ -479,7 +484,7 @@ def cse_alife_level_changer(reader):
 def cse_alife_smart_zone(reader):
     cse_alife_space_restrictor(reader)
     CSE_AlifeSmartZone(reader)
-    reader.offset = len(reader.data)
+    # ???
 
 
 def cse_alife_monster_base(reader):
@@ -534,8 +539,7 @@ def cse_alife_anomalous_zone(reader):
     cse_alife_space_restrictor(reader)
     CSE_ALifeCustomZone(reader)
     CSE_ALifeAnomalousZone(reader)
-
-    reader.offset = len(reader.data)    # ???
+    # ???
 
 
 def cse_alife_zone_visual(reader):
@@ -550,3 +554,6 @@ def cse_alife_torrid_zone(reader):
     cse_alife_space_restrictor(reader)
     CSE_ALifeCustomZone(reader)
     CSE_Motion(reader)
+
+
+###############################################################################

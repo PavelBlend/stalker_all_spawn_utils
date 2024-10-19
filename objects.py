@@ -8,9 +8,10 @@ def read_net_packet(data, classes):
     # create reader
     reader = read.Reader(data)
 
-    # get section name
+    # get section name and object name
     reader.offset = 4
     section_name = reader.string()
+    obj_name = reader.string()
     reader.offset = 0
 
     # get packet
@@ -18,12 +19,7 @@ def read_net_packet(data, classes):
     packet = clas.net_packet_by_class.get(clas_name, None)
 
     # read packet
-    p = packet(reader)
-
-    obj_name = None
-    for name, value, fmt in reader.props:
-        if name == 'name':
-            obj_name = value
+    packet(reader)
 
     return section_name, obj_name, reader
 
