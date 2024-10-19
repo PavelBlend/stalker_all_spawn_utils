@@ -12,12 +12,15 @@ vec4 = 'vec4'
 matrix3x4 = 'matrix3x4'
 string = 'string'
 get_bytes = 'get_bytes'
+comment = 'comment'
 
 
 class NetPacket:
     def __init__(self, reader):
         self.reader = reader
+        reader.props.append([self.__class__.__name__, None, comment])
         self.read()
+        reader.props.append(['', None, comment])
         # self.debug()
 
     def read(self):
@@ -69,21 +72,21 @@ class CSE_Abstract(NetPacket):
         self.get            ('id_phantom',          uint16)
         flags = self.get    ('flags',               uint16, append=False)
 
-        obj_local       = flags & fmt.SpawnFlags.OBJECT_LOCAL
-        obj_upd         = flags & fmt.SpawnFlags.OBJECT_HAS_UPDATE
-        obj_as_player   = flags & fmt.SpawnFlags.OBJECT_AS_PLAYER
-        obj_phantom     = flags & fmt.SpawnFlags.OBJECT_PHANTOM
-        check_ver       = flags & fmt.SpawnFlags.VERSION
-        update_packet   = flags & fmt.SpawnFlags.UPDATE
-        spawn_time      = flags & fmt.SpawnFlags.TIME
+        obj_local       = bool(flags & fmt.SpawnFlags.OBJECT_LOCAL)
+        obj_upd         = bool(flags & fmt.SpawnFlags.OBJECT_HAS_UPDATE)
+        obj_as_player   = bool(flags & fmt.SpawnFlags.OBJECT_AS_PLAYER)
+        obj_phantom     = bool(flags & fmt.SpawnFlags.OBJECT_PHANTOM)
+        check_ver       = bool(flags & fmt.SpawnFlags.VERSION)
+        update_packet   = bool(flags & fmt.SpawnFlags.UPDATE)
+        spawn_time      = bool(flags & fmt.SpawnFlags.TIME)
 
-        self.append('object_local',         bool(obj_local),            'flags')
-        self.append('object_upd',           bool(obj_upd),           'flags')
-        self.append('object_as_player',     bool(obj_as_player),     'flags')
-        self.append('object_phantom',       bool(obj_phantom),       'flags')
-        self.append('check_version',        bool(check_ver),        'flags')
-        self.append('update_packet',        bool(update_packet),        'flags')
-        self.append('spawn_time',           bool(spawn_time),           'flags')
+        self.append('object_local',         obj_local,          'flags')
+        self.append('object_upd',           obj_upd,            'flags')
+        self.append('object_as_player',     obj_as_player,      'flags')
+        self.append('object_phantom',       obj_phantom,        'flags')
+        self.append('check_version',        check_ver,          'flags')
+        self.append('update_packet',        update_packet,      'flags')
+        self.append('spawn_time',           spawn_time,         'flags')
 
         if check_ver:
             self.get('version', uint16)
@@ -100,8 +103,8 @@ class CSE_Visual(NetPacket):
     def read(self):
         self.get('visual_name', string)
         flags = self.get('flags',       uint8, append=False)
-        obstacle = flags & fmt.VisualFlags.OBSTACLE
-        self.append('obstacle', bool(obstacle), 'flags')
+        obstacle = bool(flags & fmt.VisualFlags.OBSTACLE)
+        self.append('obstacle', obstacle, 'flags')
 
 
 class CSE_ALifeObject(NetPacket):
@@ -114,7 +117,33 @@ class CSE_ALifeObject(NetPacket):
 
         flags = self.get('flags',           uint32, append=False)
 
-        
+        use_switches            = bool(flags & fmt.ALifeObjectFlags.USE_SWITCHES)
+        switch_online           = bool(flags & fmt.ALifeObjectFlags.SWITCH_ONLINE)
+        switch_offline          = bool(flags & fmt.ALifeObjectFlags.SWITCH_OFFLINE)
+        interactive             = bool(flags & fmt.ALifeObjectFlags.INTERACTIVE)
+        visible_for_ai          = bool(flags & fmt.ALifeObjectFlags.VISIBLE_FOR_AI)
+        useful_for_ai           = bool(flags & fmt.ALifeObjectFlags.USEFUL_FOR_AI)
+        offline_no_move         = bool(flags & fmt.ALifeObjectFlags.OFFLINE_NO_MOVE)
+        used_ai_locations       = bool(flags & fmt.ALifeObjectFlags.USED_AI_LOCATIONS)
+        group_behaviour         = bool(flags & fmt.ALifeObjectFlags.GROUP_BEHAVIOUR)
+        can_save                = bool(flags & fmt.ALifeObjectFlags.CAN_SAVE)
+        visible_for_map         = bool(flags & fmt.ALifeObjectFlags.VISIBLE_FOR_MAP)
+        use_smart_terrains      = bool(flags & fmt.ALifeObjectFlags.USE_SMART_TERRAINS)
+        check_for_separator     = bool(flags & fmt.ALifeObjectFlags.CHECK_FOR_SEPARATOR)
+
+        self.append('use_switches',         use_switches,           'flags')
+        self.append('switch_online',        switch_online,          'flags')
+        self.append('switch_offline',       switch_offline,         'flags')
+        self.append('interactive',          interactive,            'flags')
+        self.append('visible_for_ai',       visible_for_ai,         'flags')
+        self.append('useful_for_ai',        useful_for_ai,          'flags')
+        self.append('offline_no_move',      offline_no_move,        'flags')
+        self.append('used_ai_locations',    used_ai_locations,      'flags')
+        self.append('group_behaviour',      group_behaviour,        'flags')
+        self.append('can_save',             can_save,               'flags')
+        self.append('visible_for_map',      visible_for_map,        'flags')
+        self.append('use_smart_terrains',   use_smart_terrains,     'flags')
+        self.append('check_for_separator',  check_for_separator,    'flags')
 
         self.get('ini_string',      string)
         self.get('story_id',        uint32)
@@ -147,10 +176,20 @@ class CSE_PHSkeleton(NetPacket):
 
     def read(self):
         self.get            ('startup_animation',   string)
-        flags = self.get    ('flags',               uint8)
+        flags = self.get    ('flags',               uint8, append=False)
         self.get            ('source_id',           uint16)
 
-        if flags & fmt.SkeletonFlags.SavedData:
+        active      = bool(flags & fmt.PHSkeletonFlags.ACTIVE)
+        spawn_copy  = bool(flags & fmt.PHSkeletonFlags.SPAWN_COPY)
+        saved_data  = bool(flags & fmt.PHSkeletonFlags.SAVED_DATA)
+        not_save    = bool(flags & fmt.PHSkeletonFlags.NOT_SAVE)
+
+        self.append('active',       active,         'flags')
+        self.append('spawn_copy',   spawn_copy,     'flags')
+        self.append('saved_data',   saved_data,     'flags')
+        self.append('not_save',     not_save,       'flags')
+
+        if saved_data:
 
             # bones data
             self.get('bones_mask',  uint64)
@@ -210,7 +249,23 @@ class CSE_ALifeObjectHangingLamp(NetPacket):
         self.get('brightness',          float32)
         self.get('color_animator',      string)
         self.get('range_',              float32)
-        self.get('flags',               uint16)
+
+        flags = self.get('flags',               uint16, append=False)
+
+        physic          = bool(flags & fmt.ALifeObjectHangingLampFlags.PHYSIC)
+        cast_shadow     = bool(flags & fmt.ALifeObjectHangingLampFlags.CAST_SHADOW)
+        r1              = bool(flags & fmt.ALifeObjectHangingLampFlags.R1)
+        r2              = bool(flags & fmt.ALifeObjectHangingLampFlags.R2)
+        type_spot       = bool(flags & fmt.ALifeObjectHangingLampFlags.TYPE_SPOT)
+        point_ambient   = bool(flags & fmt.ALifeObjectHangingLampFlags.POINT_AMBIENT)
+
+        self.append('physic',           physic,         'flags')
+        self.append('cast_shadow',      cast_shadow,    'flags')
+        self.append('r1',               r1,             'flags')
+        self.append('r2',               r2,             'flags')
+        self.append('type_spot',        type_spot,      'flags')
+        self.append('point_ambient',    point_ambient,  'flags')
+
         self.get('startup_animation',   string)
         self.get('fixed_bones',         string)
         self.get('health',              float32)

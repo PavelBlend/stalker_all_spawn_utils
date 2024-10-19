@@ -59,13 +59,6 @@ class VisualFlags:
     OBSTACLE    = 1 << 0
 
 
-class SkeletonFlags:
-    Active      = 1 << 0
-    SpawnCopy   = 1 << 1
-    SavedData   = 1 << 2
-    NotSave     = 1 << 3
-
-
 class ALifeObjectFlags:
     USE_SWITCHES            = 1 << 0
     SWITCH_ONLINE           = 1 << 1
@@ -80,6 +73,22 @@ class ALifeObjectFlags:
     VISIBLE_FOR_MAP         = 1 << 10
     USE_SMART_TERRAINS      = 1 << 11
     CHECK_FOR_SEPARATOR     = 1 << 12
+
+
+class PHSkeletonFlags:
+    ACTIVE          = 1 << 0
+    SPAWN_COPY      = 1 << 1
+    SAVED_DATA      = 1 << 2
+    NOT_SAVE        = 1 << 3
+
+
+class ALifeObjectHangingLampFlags:
+    PHYSIC              = 1 << 0
+    CAST_SHADOW         = 1 << 1
+    R1                  = 1 << 2
+    R2                  = 1 << 3
+    TYPE_SPOT           = 1 << 4
+    POINT_AMBIENT       = 1 << 5
 
 
 XR_AI_VERSION = 8

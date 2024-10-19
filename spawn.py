@@ -57,6 +57,12 @@ for obj_id, sect, obj, packet in packets:
             elif type_ == net_packet.vec3:
                 print('{0} = {1}, {2}, {3}'.format(name, *value))
 
+            elif type_ == net_packet.comment:
+                if name:
+                    print('; {0}'.format(name))
+                else:
+                    print()
+
             else:
                 print('{0} = {1}'.format(name, value))
 
