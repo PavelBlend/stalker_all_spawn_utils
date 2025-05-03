@@ -9,7 +9,11 @@ def debug(reader):
 
     for name, value, typ in reader.props:
 
-        if typ == net_packet.comment:
+        if name == 'game_type':
+            value = fmt.GAME_ID[value]
+            print('{0} = "{1}"'.format(name, value))
+
+        elif typ == net_packet.comment:
             if name:
                 print('; {0}'.format(name))
             else:
@@ -17,6 +21,9 @@ def debug(reader):
 
         elif typ == net_packet.string:
             print('{0} = "{1}"'.format(name, value))
+
+        elif typ == net_packet.vec3:
+            print('{0} = {1}, {2}, {3}'.format(name, *value))
 
         else:
             print('{0} = {1}'.format(name, value))
