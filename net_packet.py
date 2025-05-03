@@ -11,6 +11,8 @@ vec3 = 'vec3'
 vec4 = 'vec4'
 matrix3x4 = 'matrix3x4'
 string = 'string'
+ctime = 'ctime'
+boolean = 'boolean'
 get_bytes = 'get_bytes'
 comment = 'comment'
 
@@ -43,8 +45,14 @@ class NetPacket:
         print('-'*79)
         print(self.__class__.__name__)
         print()
-        for name, value in self.reader.props:
-            print('{0} = {1}'.format(name, value))
+        for name, value, typ in self.reader.props:
+            if typ != comment:
+                print('{0} = {1}'.format(name, value))
+            else:
+                if name:
+                    print('; {0}'.format(name))
+                else:
+                    print()
         print()
         print(len(self.reader.data), self.reader.offset)
         print('-'*79)
@@ -417,6 +425,21 @@ class CSE_ALifeCar(NetPacket):
         self.get('health', float32)
 
 
+class SE_SmartTerrain(NetPacket):
+
+    def read(self):
+        self.get('duration_end',    ctime)
+        self.get('idle_end',        ctime)
+
+
+class SE_ZoneAnom(NetPacket):
+
+    def read(self):
+        flag = self.get('flag', uint8)
+        if flag:
+            self.get('last_spawn_time', ctime)
+
+
 ###############################################################################
 
 
@@ -484,7 +507,11 @@ def cse_alife_level_changer(reader):
 def cse_alife_smart_zone(reader):
     cse_alife_space_restrictor(reader)
     CSE_AlifeSmartZone(reader)
-    # ???
+
+
+def se_smart_terrain(reader):
+    cse_alife_smart_zone(reader)
+    SE_SmartTerrain(reader)
 
 
 def cse_alife_monster_base(reader):
@@ -539,7 +566,11 @@ def cse_alife_anomalous_zone(reader):
     cse_alife_space_restrictor(reader)
     CSE_ALifeCustomZone(reader)
     CSE_ALifeAnomalousZone(reader)
-    # ???
+
+
+def se_zone_anom(reader):
+    cse_alife_anomalous_zone(reader)
+    SE_ZoneAnom(reader)
 
 
 def cse_alife_zone_visual(reader):

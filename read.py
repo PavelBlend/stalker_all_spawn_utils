@@ -71,6 +71,55 @@ class Reader:
 
         return string
 
+    def ctime(self):
+        year = struct.unpack_from('<B', self.data, self.offset)[0]
+        self.offset += 1
+
+        if year != 0:
+            year += 2000
+
+            month = struct.unpack_from('<B', self.data, self.offset)[0]
+            self.offset += 1
+
+            day = struct.unpack_from('<B', self.data, self.offset)[0]
+            self.offset += 1
+
+            hours = struct.unpack_from('<B', self.data, self.offset)[0]
+            self.offset += 1
+
+            minutes = struct.unpack_from('<B', self.data, self.offset)[0]
+            self.offset += 1
+
+            seconds = struct.unpack_from('<B', self.data, self.offset)[0]
+            self.offset += 1
+
+            milliseconds = struct.unpack_from('<H', self.data, self.offset)[0]
+            self.offset += 2
+
+        else:
+            month = 0
+            day = 0
+            hours = 0
+            minutes = 0
+            seconds = 0
+            milliseconds = 0
+
+        value = (
+            year,
+            month,
+            day,
+            hours,
+            minutes,
+            seconds,
+            milliseconds
+        )
+        return value
+
+    def boolean(self):
+        value = struct.unpack_from('<B', self.data, self.offset)[0]
+        self.offset += 1
+        return bool(value)
+
     def skip(self, size):
         self.offset += size
 

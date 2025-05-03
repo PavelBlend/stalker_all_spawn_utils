@@ -21,8 +21,11 @@ def read_net_packet(data, classes):
     # read packet
     packet(reader)
 
-    '''if len(data) != reader.offset:
-        print(section_name, clas_name, packet, len(data), reader.offset)'''
+    if len(data) != reader.offset:
+        print(section_name, clas_name, packet, len(data), reader.offset)
+        if clas_name == 'SMRTTRRN':
+            print(obj_name)
+            1 / 0
 
     return section_name, obj_name, reader
 
