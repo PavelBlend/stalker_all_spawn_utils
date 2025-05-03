@@ -4,6 +4,26 @@ import read
 import net_packet
 
 
+def debug(reader):
+    print(';' + '-'*79)
+
+    for name, value, typ in reader.props:
+
+        if typ == net_packet.comment:
+            if name:
+                print('; {0}'.format(name))
+            else:
+                print()
+
+        elif typ == net_packet.string:
+            print('{0} = "{1}"'.format(name, value))
+
+        else:
+            print('{0} = {1}'.format(name, value))
+
+    print('\n'*3)
+
+
 def read_net_packet(data, classes):
     # create reader
     reader = read.Reader(data)
@@ -20,6 +40,8 @@ def read_net_packet(data, classes):
 
     # read packet
     packet(reader)
+
+    debug(reader)
 
     return section_name, obj_name, reader
 

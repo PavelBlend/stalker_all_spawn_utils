@@ -25,7 +25,6 @@ class NetPacket:
         reader.props.append([self.__class__.__name__, None, comment])
         self.read()
         reader.props.append(['', None, comment])
-        # self.debug()
 
     def read(self):
         raise NotImplementedError
@@ -39,23 +38,6 @@ class NetPacket:
 
     def append(self, name, value, fmt):
         self.reader.props.append([name, value, fmt])
-
-    def debug(self):
-        print('-'*79)
-        print(self.__class__.__name__)
-        print()
-        for name, value, typ in self.reader.props:
-            if typ != comment:
-                print('{0} = {1}'.format(name, value))
-            else:
-                if name:
-                    print('; {0}'.format(name))
-                else:
-                    print()
-        print()
-        print(len(self.reader.data), self.reader.offset)
-        print('-'*79)
-        print('\n'*3)
 
 
 ###############################################################################
