@@ -115,11 +115,6 @@ class Reader:
         )
         return value
 
-    def boolean(self):
-        value = struct.unpack_from('<B', self.data, self.offset)[0]
-        self.offset += 1
-        return bool(value)
-
     def skip(self, size):
         self.offset += size
 

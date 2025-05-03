@@ -12,7 +12,6 @@ vec4 = 'vec4'
 matrix3x4 = 'matrix3x4'
 string = 'string'
 ctime = 'ctime'
-boolean = 'boolean'
 get_bytes = 'get_bytes'
 comment = 'comment'
 
@@ -585,6 +584,3 @@ def cse_alife_torrid_zone(reader):
     cse_alife_space_restrictor(reader)
     CSE_ALifeCustomZone(reader)
     CSE_Motion(reader)
-
-
-###############################################################################
