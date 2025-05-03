@@ -21,6 +21,9 @@ def read_net_packet(data, classes):
     # read packet
     packet(reader)
 
+    '''if len(data) != reader.offset:
+        print(section_name, clas_name, packet, len(data), reader.offset)'''
+
     return section_name, obj_name, reader
 
 

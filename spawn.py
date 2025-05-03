@@ -40,30 +40,33 @@ file_path = 'D:\\E\\soc\\gamedata_unpack\\spawns\\all.spawn'
 packets = []
 parse_spawn(packets, file_path)
 
-for obj_id, sect, obj, packet in packets:
-    print('[{}]'.format(obj_id))
+out = False
 
-    for name, value, type_ in packet.props:
+if out:
+    for obj_id, sect, obj, packet in packets:
+        print('[{}]'.format(obj_id))
 
-        if name == 'game_type':
-            value = fmt.GAME_ID[value]
-            print('{0} = "{1}"'.format(name, value))
+        for name, value, type_ in packet.props:
 
-        else:
-
-            if type_ == net_packet.string:
+            if name == 'game_type':
+                value = fmt.GAME_ID[value]
                 print('{0} = "{1}"'.format(name, value))
 
-            elif type_ == net_packet.vec3:
-                print('{0} = {1}, {2}, {3}'.format(name, *value))
-
-            elif type_ == net_packet.comment:
-                if name:
-                    print('; {0}'.format(name))
-                else:
-                    print()
-
             else:
-                print('{0} = {1}'.format(name, value))
 
-    print('\n'*3)
+                if type_ == net_packet.string:
+                    print('{0} = "{1}"'.format(name, value))
+
+                elif type_ == net_packet.vec3:
+                    print('{0} = {1}, {2}, {3}'.format(name, *value))
+
+                elif type_ == net_packet.comment:
+                    if name:
+                        print('; {0}'.format(name))
+                    else:
+                        print()
+
+                else:
+                    print('{0} = {1}'.format(name, value))
+
+        print('\n'*3)
