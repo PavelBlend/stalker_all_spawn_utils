@@ -10,6 +10,9 @@ float32 = 'float32'
 vec3 = 'vec3'
 vec4 = 'vec4'
 matrix3x4 = 'matrix3x4'
+flags8 = 'flags8'
+flags16 = 'flags16'
+flags32 = 'flags32'
 string = 'string'
 ctime = 'ctime'
 get_bytes = 'get_bytes'
@@ -27,7 +30,21 @@ class NetPacket:
         reader.props.append(['', None, comment])
 
     def read(self):
-        raise NotImplementedError
+        for prop in self.props:
+            name    = prop[0]
+            typ     = prop[1]
+
+            if len(prop) == 4:
+                cond_name = prop[2]
+                cond_fun = prop[3]
+
+            elif typ == flags16:
+                flag_props = prop[2]
+
+            elif typ == get_bytes:
+                size = prop[2]
+
+            self.get(name, typ)
 
     def get(self, name, fmt, *args, append=True):
         read_fun = getattr(self.reader, fmt, None)
@@ -43,106 +60,77 @@ class NetPacket:
 ###############################################################################
 
 
-class Base(NetPacket):
+BASE_PROPS = (
+    ('net_packet_size',     uint16),
+    ('state',               uint16)
+)
 
-    def read(self):
-        self.get('net_packet_size', uint16)
-        self.get('state', uint16)
+SPAWN_FLAGS = (
+    ('object_local',        fmt.SpawnFlags.OBJECT_LOCAL),
+    ('object_upd',          fmt.SpawnFlags.OBJECT_HAS_UPDATE),
+    ('object_as_player',    fmt.SpawnFlags.OBJECT_AS_PLAYER),
+    ('object_phantom',      fmt.SpawnFlags.OBJECT_PHANTOM),
+    ('check_version',       fmt.SpawnFlags.VERSION),
+    ('update_packet',       fmt.SpawnFlags.UPDATE),
+    ('spawn_time',          fmt.SpawnFlags.TIME)
+)
 
+CSE_ABSTRACT_PROPS = (
+    ('section_name',        string),
+    ('name',                string),
 
-class CSE_Abstract(NetPacket):
+    ('game_type',           uint8),    # GameID in fmt
+    ('rp',                  uint8),    # use supplied coords
+    ('position',            vec3),
+    ('direction',           vec3),
+    ('respawn_time',        uint16),
+    ('object_id',           uint16),
+    ('id_parent',           uint16),
+    ('id_phantom',          uint16),
+    ('flags',               flags16,        SPAWN_FLAGS),
+    ('version',             uint16,         'check_version',    lambda x: bool(x)),
+    ('script_version',      uint16),
+    ('client_data_size',    uint16),
+    ('client_data',         get_bytes,      'client_data_size'),
+    ('spawn_id',            uint16),
+    ('size',                uint16)
+)
 
-    def read(self):
+VISUAL_FLAGS = (
+    ('obstacle', fmt.VisualFlags.OBSTACLE),
+)
 
-        self.section_name   = self.get('section_name', string)
-        self.name           = self.get('name',         string)
+CSE_VISUAL_PROPS = (
+    ('visual_name', string),
+    ('flags',       flags8,     VISUAL_FLAGS)
+)
 
-        self.get            ('game_type',           uint8)    # GameID in fmt
-        self.get            ('rp',                  uint8)    # use supplied coords
-        self.get            ('position',            vec3)
-        self.get            ('direction',           vec3)
-        self.get            ('respawn_time',        uint16)
-        self.get            ('object_id',           uint16)
-        self.get            ('id_parent',           uint16)
-        self.get            ('id_phantom',          uint16)
-        flags = self.get    ('flags',               uint16, append=False)
+ALIFE_OBJECT_FLAGS = (
+    ('use_switches',            fmt.ALifeObjectFlags.USE_SWITCHES),
+    ('switch_online',           fmt.ALifeObjectFlags.SWITCH_ONLINE),
+    ('switch_offline',          fmt.ALifeObjectFlags.SWITCH_OFFLINE),
+    ('interactive',             fmt.ALifeObjectFlags.INTERACTIVE),
+    ('visible_for_ai',          fmt.ALifeObjectFlags.VISIBLE_FOR_AI),
+    ('useful_for_ai',           fmt.ALifeObjectFlags.USEFUL_FOR_AI),
+    ('offline_no_move',         fmt.ALifeObjectFlags.OFFLINE_NO_MOVE),
+    ('used_ai_locations',       fmt.ALifeObjectFlags.USED_AI_LOCATIONS),
+    ('group_behaviour',         fmt.ALifeObjectFlags.GROUP_BEHAVIOUR),
+    ('can_save',                fmt.ALifeObjectFlags.CAN_SAVE),
+    ('visible_for_map',         fmt.ALifeObjectFlags.VISIBLE_FOR_MAP),
+    ('use_smart_terrains',      fmt.ALifeObjectFlags.USE_SMART_TERRAINS),
+    ('check_for_separator',     fmt.ALifeObjectFlags.CHECK_FOR_SEPARATOR)
+)
 
-        obj_local       = bool(flags & fmt.SpawnFlags.OBJECT_LOCAL)
-        obj_upd         = bool(flags & fmt.SpawnFlags.OBJECT_HAS_UPDATE)
-        obj_as_player   = bool(flags & fmt.SpawnFlags.OBJECT_AS_PLAYER)
-        obj_phantom     = bool(flags & fmt.SpawnFlags.OBJECT_PHANTOM)
-        check_ver       = bool(flags & fmt.SpawnFlags.VERSION)
-        update_packet   = bool(flags & fmt.SpawnFlags.UPDATE)
-        spawn_time      = bool(flags & fmt.SpawnFlags.TIME)
-
-        self.append('object_local',         obj_local,          'flags')
-        self.append('object_upd',           obj_upd,            'flags')
-        self.append('object_as_player',     obj_as_player,      'flags')
-        self.append('object_phantom',       obj_phantom,        'flags')
-        self.append('check_version',        check_ver,          'flags')
-        self.append('update_packet',        update_packet,      'flags')
-        self.append('spawn_time',           spawn_time,         'flags')
-
-        if check_ver:
-            self.get('version', uint16)
-
-        self.get        ('script_version',      uint16)
-        sz = self.get   ('client_data_size',    uint16)
-        self.get        ('client_data',         get_bytes, sz)
-        self.get        ('spawn_id',            uint16)
-        self.get        ('size',                uint16)
-
-
-class CSE_Visual(NetPacket):
-
-    def read(self):
-        self.get('visual_name', string)
-        flags = self.get('flags',       uint8, append=False)
-        obstacle = bool(flags & fmt.VisualFlags.OBSTACLE)
-        self.append('obstacle', obstacle, 'flags')
-
-
-class CSE_ALifeObject(NetPacket):
-
-    def read(self):
-        self.get('graph_id',        uint16)
-        self.get('distance',        float32)
-        self.get('direct_control',  uint32)
-        self.get('node_id',         uint32)
-
-        flags = self.get('flags',           uint32, append=False)
-
-        use_switches            = bool(flags & fmt.ALifeObjectFlags.USE_SWITCHES)
-        switch_online           = bool(flags & fmt.ALifeObjectFlags.SWITCH_ONLINE)
-        switch_offline          = bool(flags & fmt.ALifeObjectFlags.SWITCH_OFFLINE)
-        interactive             = bool(flags & fmt.ALifeObjectFlags.INTERACTIVE)
-        visible_for_ai          = bool(flags & fmt.ALifeObjectFlags.VISIBLE_FOR_AI)
-        useful_for_ai           = bool(flags & fmt.ALifeObjectFlags.USEFUL_FOR_AI)
-        offline_no_move         = bool(flags & fmt.ALifeObjectFlags.OFFLINE_NO_MOVE)
-        used_ai_locations       = bool(flags & fmt.ALifeObjectFlags.USED_AI_LOCATIONS)
-        group_behaviour         = bool(flags & fmt.ALifeObjectFlags.GROUP_BEHAVIOUR)
-        can_save                = bool(flags & fmt.ALifeObjectFlags.CAN_SAVE)
-        visible_for_map         = bool(flags & fmt.ALifeObjectFlags.VISIBLE_FOR_MAP)
-        use_smart_terrains      = bool(flags & fmt.ALifeObjectFlags.USE_SMART_TERRAINS)
-        check_for_separator     = bool(flags & fmt.ALifeObjectFlags.CHECK_FOR_SEPARATOR)
-
-        self.append('use_switches',         use_switches,           'flags')
-        self.append('switch_online',        switch_online,          'flags')
-        self.append('switch_offline',       switch_offline,         'flags')
-        self.append('interactive',          interactive,            'flags')
-        self.append('visible_for_ai',       visible_for_ai,         'flags')
-        self.append('useful_for_ai',        useful_for_ai,          'flags')
-        self.append('offline_no_move',      offline_no_move,        'flags')
-        self.append('used_ai_locations',    used_ai_locations,      'flags')
-        self.append('group_behaviour',      group_behaviour,        'flags')
-        self.append('can_save',             can_save,               'flags')
-        self.append('visible_for_map',      visible_for_map,        'flags')
-        self.append('use_smart_terrains',   use_smart_terrains,     'flags')
-        self.append('check_for_separator',  check_for_separator,    'flags')
-
-        self.get('ini_string',      string)
-        self.get('story_id',        uint32)
-        self.get('spawn_story_id',  uint32)
+CSE_ALIFE_OBJECT_PROPS = (
+    ('graph_id',        uint16),
+    ('distance',        float32),
+    ('direct_control',  uint32),
+    ('node_id',         uint32),
+    ('flags',           flags32,    ALIFE_OBJECT_FLAGS),
+    ('ini_string',      string),
+    ('story_id',        uint32),
+    ('spawn_story_id',  uint32)
+)
 
 
 class CSE_ALifeObjectBreakable(NetPacket):

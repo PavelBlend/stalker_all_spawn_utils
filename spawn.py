@@ -4,6 +4,7 @@ import header
 import objects
 import net_packet
 import level_points
+import way_points
 import fmt
 import config
 
@@ -14,16 +15,19 @@ def parse_spawn_body(packets, data, classes):
     for chunk_id, chunk_data in chunks:
 
         if chunk_id == fmt.SpawnChunks.HEADER:
+            continue
             header.read_header(chunk_data)
 
         elif chunk_id == fmt.SpawnChunks.SPAWN_OBJECTS:
+            continue
             objects.read_objects(packets, chunk_data, classes)
 
         elif chunk_id == fmt.SpawnChunks.LEVEL_POINTS:
+            continue
             level_points.read_level_points(chunk_data)
 
         elif chunk_id == fmt.SpawnChunks.WAY_POINTS:
-            pass
+            way_points.read_way_points(chunk_data)
 
         else:
             print('unknown main chunk: {}'.format(chunk_id))

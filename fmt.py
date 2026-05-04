@@ -16,6 +16,27 @@ class SpawnObjectChunks:
     OBJECT_BODY = 1
 
 
+class SpawnWayPointsChunks:
+    COUNT   = 0
+    OBJECTS = 1
+
+
+class SpawnWayPointChunks:
+    NAME    = 0
+    DATA    = 1
+
+
+class SpawnWayPointDataChunks:
+    COUNT   = 0
+    POINTS  = 1
+    LINKS   = 2
+
+
+class SpawnPointChunks:
+    ID      = 0
+    DATA    = 1
+
+
 class NetPackedChunks:
     SPAWN   = 0
     UPDATE  = 1
