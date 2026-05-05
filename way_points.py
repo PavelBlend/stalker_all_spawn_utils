@@ -15,7 +15,6 @@ def read_way_point_name(data):
 def read_point_count(data):
     reader = read.Reader(data)
     point_count = reader.uint32()
-    return point_count
 
 
 def read_point_id(data):

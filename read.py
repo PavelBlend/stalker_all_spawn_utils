@@ -2,10 +2,15 @@ import struct
 
 
 class Reader:
+
     def __init__(self, data):
         self.data = data
         self.offset = 0
         self.props = []
+
+    def __del__(self):
+        if len(self.data) != self.offset:
+            print('Reader Error')
 
     def uint8(self):
         value = struct.unpack_from('<B', self.data, self.offset)[0]
