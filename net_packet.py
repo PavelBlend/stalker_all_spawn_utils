@@ -133,6 +133,13 @@ CSE_ALIFE_OBJECT_PROPS = (
 )
 
 
+class Base(NetPacket):
+
+    def read(self):
+        self.get('net_packet_size', uint16)
+        self.get('state', uint16)
+
+
 class CSE_ALifeObjectBreakable(NetPacket):
 
     def read(self):
