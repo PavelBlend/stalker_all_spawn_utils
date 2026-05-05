@@ -55,38 +55,37 @@ def read_points(data):
         read_point(point_data)
 
 
-def read_links(data, point_count):
-    # Исправить эту функцию
+def read_links(data):
 
-    if point_count < 2:
+    if not data:
         return
 
     reader = read.Reader(data)
 
-    try:
-        for i in range(point_count):
-            point_id        = reader.uint32()
-            edge_count      = reader.uint32()
-            for edge_id in range(edge_count):
-                edge_1          = reader.uint16()
-                edge_2          = reader.uint16()
-                probability     = reader.float32()
+    while reader.offset < len(data):
+
+        point_id        = reader.uint32()
+        edge_count      = reader.uint32()
+
+        for edge_id in range(edge_count):
+            edge_1          = reader.uint16()
+            edge_2          = reader.uint16()
+            probability     = reader.float32()
 
 
 def read_way_point_data(data):
     chunks = read.Chunks(data)
-    point_count = None
 
     for chunk_id, chunk_data in chunks:
 
         if chunk_id == fmt.SpawnWayPointDataChunks.COUNT:
-            point_count = read_point_count(chunk_data)
+            read_point_count(chunk_data)
 
         elif chunk_id == fmt.SpawnWayPointDataChunks.POINTS:
             read_points(chunk_data)
 
         elif chunk_id == fmt.SpawnWayPointDataChunks.LINKS:
-            read_links(chunk_data, point_count)
+            read_links(chunk_data)
 
         else:
             print('unknown waypoint chunk: {}'.format(chunk_id))
