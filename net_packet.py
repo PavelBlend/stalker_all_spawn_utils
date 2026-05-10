@@ -25,10 +25,11 @@ def_fun = lambda x: bool(x)
 
 class NetPacket:
 
-    def __init__(self, reader, props_desc, clas_name):
+    def __init__(self, reader, props_desc, clas_name, debug=False):
 
         self.reader         = reader
         self.props_desc     = props_desc
+        self.debug = debug
 
         # first comment
         reader.props.append([clas_name, None, comment])
@@ -43,6 +44,9 @@ class NetPacket:
 
         name    = prop[0]
         typ     = prop[1]
+
+        if self.debug:
+            print(name, self.reader.file_offs)
 
         if len(prop) == 4:
             cond_name = prop[2]
@@ -81,7 +85,9 @@ class NetPacket:
                     self.read_prop(prop)
 
         else:
-            self.get(name, typ)
+            val = self.get(name, typ)
+            if self.debug:
+                print(val)
 
     def read(self):
         for prop in self.props_desc:

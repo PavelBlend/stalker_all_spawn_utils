@@ -3,78 +3,83 @@ import struct
 
 class Reader:
 
-    def __init__(self, data):
+    def __init__(self, data, file_offs=0):
         self.data = data
         self.offset = 0
+        self.file_offs = file_offs
         self.props = []
 
     def __del__(self):
         if len(self.data) != self.offset:
             print('Reader Error')
 
+    def offs(self, value):
+        self.offset     += value
+        self.file_offs  += value
+
     def uint8(self):
         value = struct.unpack_from('<B', self.data, self.offset)[0]
-        self.offset += 1
+        self.offs(1)
         return value
 
     def uint16(self):
         value = struct.unpack_from('<H', self.data, self.offset)[0]
-        self.offset += 2
+        self.offs(2)
         return value
 
     def uint32(self):
         value = struct.unpack_from('<I', self.data, self.offset)[0]
-        self.offset += 4
+        self.offs(4)
         return value
 
     def int32(self):
         value = struct.unpack_from('<i', self.data, self.offset)[0]
-        self.offset += 4
+        self.offs(4)
         return value
 
     def uint64(self):
         value = struct.unpack_from('<Q', self.data, self.offset)[0]
-        self.offset += 8
+        self.offs(8)
         return value
 
     def float32(self):
         value = struct.unpack_from('<f', self.data, self.offset)[0]
-        self.offset += 4
+        self.offs(4)
         return value
 
     def vec3(self):
         value = struct.unpack_from('<3f', self.data, self.offset)
-        self.offset += 12
+        self.offs(12)
         return value
 
     def vec4(self):
         value = struct.unpack_from('<4f', self.data, self.offset)
-        self.offset += 16
+        self.offs(16)
         return value
 
     def matrix3x4(self):
         value = struct.unpack_from('<12f', self.data, self.offset)
-        self.offset += 48
+        self.offs(48)
         return value
 
     def matrix4x4(self):
         value = struct.unpack_from('<16f', self.data, self.offset)
-        self.offset += 64
+        self.offs(64)
         return value
 
     def flags8(self):
         value = struct.unpack_from('<B', self.data, self.offset)[0]
-        self.offset += 1
+        self.offs(1)
         return value
 
     def flags16(self):
         value = struct.unpack_from('<H', self.data, self.offset)[0]
-        self.offset += 2
+        self.offs(2)
         return value
 
     def flags32(self):
         value = struct.unpack_from('<I', self.data, self.offset)[0]
-        self.offset += 4
+        self.offs(4)
         return value
 
     def string(self):
@@ -87,34 +92,34 @@ class Reader:
 
         string_size = zero_pos - self.offset - 1
         string = struct.unpack_from('<{}s'.format(string_size), self.data, self.offset)[0].decode(encoding='cp1251')
-        self.offset = zero_pos
+        self.offs(string_size + 1)
 
         return string
 
     def ctime(self):
         year = struct.unpack_from('<B', self.data, self.offset)[0]
-        self.offset += 1
+        self.offs(1)
 
         if year != 0:
             year += 2000
 
             month = struct.unpack_from('<B', self.data, self.offset)[0]
-            self.offset += 1
+            self.offs(1)
 
             day = struct.unpack_from('<B', self.data, self.offset)[0]
-            self.offset += 1
+            self.offs(1)
 
             hours = struct.unpack_from('<B', self.data, self.offset)[0]
-            self.offset += 1
+            self.offs(1)
 
             minutes = struct.unpack_from('<B', self.data, self.offset)[0]
-            self.offset += 1
+            self.offs(1)
 
             seconds = struct.unpack_from('<B', self.data, self.offset)[0]
-            self.offset += 1
+            self.offs(1)
 
             milliseconds = struct.unpack_from('<H', self.data, self.offset)[0]
-            self.offset += 2
+            self.offs(2)
 
         else:
             month = 0
@@ -145,39 +150,50 @@ class Reader:
 
 
 class Chunks:
-    def __init__(self, data):
+    def __init__(self, data, file_offs=0):
         self.data = data
         self.size = len(data)
         self._offset = 0
-        self._current_chunk = 0
-        self._chunks_count = 0
+        self.chunks_count = 0
+        self.current_chunk = 0
+        self.file_offs = file_offs
 
-        self.chunks = []
+        self.chunks     = []
+        self.offsets    = []
 
         self._read()
 
     def _read_chunk(self):
+        chunk_offset = self.file_offs + self._offset
+
         chunk_id, chunk_size = struct.unpack_from('<2I', self.data, self._offset)
         self._offset += 8
+
+        data_offset = self.file_offs + self._offset
 
         chunk_data = self.data[self._offset : self._offset + chunk_size]
         self._offset += chunk_size
 
         self.chunks.append((chunk_id, chunk_data))
+        self.offsets.append((chunk_offset, data_offset))
 
     def _read(self):
         while self._offset < self.size:
             self._read_chunk()
 
-        self._chunks_count = len(self.chunks)
+        self.chunks_count = len(self.chunks)
+
+    def get_offs(self):
+        chunk_offset, data_offset = self.offsets[self.current_chunk - 1]
+        return chunk_offset, data_offset
 
     def __next__(self):
-        if self._current_chunk >= self._chunks_count:
-            self._current_chunk = 0
+        if self.current_chunk >= self.chunks_count:
+            self.current_chunk = 0
             raise StopIteration
 
-        chunk_id, chunk_data = self.chunks[self._current_chunk]
-        self._current_chunk += 1
+        chunk_id, chunk_data = self.chunks[self.current_chunk]
+        self.current_chunk += 1
 
         return chunk_id, chunk_data
 

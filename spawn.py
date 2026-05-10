@@ -14,11 +14,13 @@ def parse_spawn_body(packets, data, classes):
 
     for chunk_id, chunk_data in chunks:
 
+        chunk_offset, data_offset = chunks.get_offs()
+
         if chunk_id == fmt.SpawnChunks.HEADER:
             header.read_header(chunk_data)
 
         elif chunk_id == fmt.SpawnChunks.SPAWN_OBJECTS:
-            objects.read_objects(packets, chunk_data, classes)
+            objects.read_objects(packets, chunk_data, classes, data_offset)
 
         elif chunk_id == fmt.SpawnChunks.LEVEL_POINTS:
             level_points.read_level_points(chunk_data)

@@ -38,39 +38,44 @@ def debug(reader):
     print('\n'*3)
 
 
-def read_net_packet(data, classes):
+def read_net_packet(data, classes, file_offset):
     # create reader
-    reader = read.Reader(data)
+    reader = read.Reader(data, file_offs=file_offset)
 
     # get section name and object name
     reader.offset = 4
     section_name = reader.string()
     obj_name = reader.string()
     reader.offset = 0
+    reader.file_offs = file_offset
 
     # get packet
     clas_name = classes.get(section_name, None)
     props = clas.net_packet_by_class.get(clas_name, None)
 
     # read packet
-    net_packet.NetPacket(reader, props, clas_name)
+    if section_name == 'actor':
+        net_packet.NetPacket(reader, props, clas_name, debug=True)
+    else:
+        net_packet.NetPacket(reader, props, clas_name)
 
-    debug(reader)
+    # debug(reader)
 
     return section_name, obj_name, reader
 
 
-def read_object_body(data, classes):
+def read_object_body(data, classes, file_offset):
     sect = None
     obj = None
     packet = None
 
-    chunks = read.Chunks(data)
+    chunks = read.Chunks(data, file_offs=file_offset)
 
     for chunk_id, chunk_data in chunks:
+        chunk_offset, data_offset = chunks.get_offs()
 
         if chunk_id == fmt.NetPackedChunks.SPAWN:
-            sect, obj, packet = read_net_packet(chunk_data, classes)
+            sect, obj, packet = read_net_packet(chunk_data, classes, data_offset)
 
         elif chunk_id == fmt.NetPackedChunks.UPDATE:
             # read_net_packet(chunk_data, classes)
@@ -88,16 +93,17 @@ def read_object_id(data):
     return object_id
 
 
-def read_spawn_object(packets, data, classes):
-    chunks = read.Chunks(data)
+def read_spawn_object(packets, data, classes, file_offset):
+    chunks = read.Chunks(data, file_offs=file_offset)
 
     for chunk_id, chunk_data in chunks:
+        chunk_offset, data_offset = chunks.get_offs()
 
         if chunk_id == fmt.SpawnObjectChunks.OBJECT_ID:
             obj_id = read_object_id(chunk_data)
 
         elif chunk_id == fmt.SpawnObjectChunks.OBJECT_BODY:
-            sect, obj, packet = read_object_body(chunk_data, classes)
+            sect, obj, packet = read_object_body(chunk_data, classes, data_offset)
 
         else:
             raise BaseException('read_spawn_object chunk')
@@ -105,11 +111,12 @@ def read_spawn_object(packets, data, classes):
     packets.append((obj_id, sect, obj, packet))
 
 
-def read_spawn_objects(packets, data, classes):
-    chunks = read.Chunks(data)
+def read_spawn_objects(packets, data, classes, file_offset):
+    chunks = read.Chunks(data, file_offs=file_offset)
 
     for object_id, object_data in chunks:
-        read_spawn_object(packets, object_data, classes)
+        chunk_offset, data_offset = chunks.get_offs()
+        read_spawn_object(packets, object_data, classes, data_offset)
 
 
 def read_objects_count(data):
@@ -117,16 +124,18 @@ def read_objects_count(data):
     objects_count = reader.uint32()
 
 
-def read_objects(packets, data, classes):
-    chunks = read.Chunks(data)
+def read_objects(packets, data, classes, file_offset):
+    chunks = read.Chunks(data, file_offs=file_offset)
 
     for chunk_id, chunk_data in chunks:
+
+        chunk_offset, data_offset = chunks.get_offs()
 
         if chunk_id == fmt.SpawnObjectsChunks.COUNT:
             read_objects_count(chunk_data)
 
         elif chunk_id == fmt.SpawnObjectsChunks.OBJECTS:
-            read_spawn_objects(packets, chunk_data, classes)
+            read_spawn_objects(packets, chunk_data, classes, data_offset)
 
         elif chunk_id == fmt.SpawnObjectsChunks.UNKNOWN:
             pass
