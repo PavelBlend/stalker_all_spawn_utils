@@ -53,7 +53,7 @@ def read_net_packet(data, classes):
     props = clas.net_packet_by_class.get(clas_name, None)
 
     # read packet
-    net_packet.NetPacket(reader, props)
+    net_packet.NetPacket(reader, props, clas_name)
 
     debug(reader)
 

@@ -25,13 +25,13 @@ def_fun = lambda x: bool(x)
 
 class NetPacket:
 
-    def __init__(self, reader, props_desc):
+    def __init__(self, reader, props_desc, clas_name):
 
         self.reader         = reader
         self.props_desc     = props_desc
 
         # first comment
-        reader.props.append([self.__class__.__name__, None, comment])
+        reader.props.append([clas_name, None, comment])
 
         # read net packet properties
         self.read()
