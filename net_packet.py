@@ -248,7 +248,7 @@ CSE_ALIFE_CREATURE_ACTOR = (
 )
 
 CSE_ALIFE_OBJECT_PHYSIC = (
-    ('type_',           uint32),
+    ('type',            uint32),
     ('mass',            float32),
     ('fixed_bones',     string)
 )
