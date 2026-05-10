@@ -24,13 +24,23 @@ def_fun = lambda x: bool(x)
 
 
 class NetPacket:
-    def __init__(self, reader):
-        self.reader = reader
+
+    def __init__(self, reader, props_desc):
+
+        self.reader         = reader
+        self.props_desc     = props_desc
+
+        # first comment
         reader.props.append([self.__class__.__name__, None, comment])
+
+        # read net packet properties
         self.read()
+
+        # new line
         reader.props.append(['', None, comment])
 
     def read_prop(self, prop):
+
         name    = prop[0]
         typ     = prop[1]
 
@@ -38,26 +48,57 @@ class NetPacket:
             cond_name = prop[2]
             cond_fun  = prop[3]
 
-        elif typ == flags16:
+            cond_value = self.get_readed_prop(cond_name)
+            cond = cond_fun(cond_value)
+
+            if cond:
+                self.get(name, typ)
+
+        elif typ in (flags8, flags16, flags32):
             flag_props = prop[2]
+            flags_value = self.get(name, typ, append=False)
+
+            for flag_name, flag_mask in flag_props:
+                flag_value = bool(flags_value & flag_mask)
+                self.append(flag_name, flag_value, typ)
 
         elif typ == get_bytes:
-            size = prop[2]
+            size_prop = prop[2]
+            size = self.get_readed_prop(size_prop)
+            offs = self.reader.offset
+            data = self.reader.data[offs : offs + size]
+            self.reader.skip(size)
+            self.append(name, data, typ)
 
         elif name == 'cycle':
-            iter_count_prop = typ    # здесь исправить
-            cycle_props = props[2]
+            iter_count_prop = self.get_readed_prop(typ)
+            cycle_props = prop[2]
             for i in range(iter_count_prop):
-                for prop_name, prop_type in cycle_props:
-                    prop_name = prop_name.format(i)
-                    self.get(prop_name, prop_type)
-            return
+                for cycle_prop in cycle_props:
+                    prop_name = cycle_prop[0].format(i)
+                    prop = list(cycle_prop)
+                    prop[0] = prop_name
+                    self.read_prop(prop)
 
-        self.get(name, typ)
+        else:
+            self.get(name, typ)
 
     def read(self):
-        for prop in self.props:
+        for prop in self.props_desc:
             self.read_prop(prop)
+
+    def get_readed_prop(self, prop_name):
+
+        result = None
+
+        for name, value, fmt in self.reader.props:
+            if name == prop_name:
+                result = value
+
+        if result is None:
+            print(f'cannot find property: {prop_name}')
+
+        return result
 
     def get(self, name, fmt, *args, append=True):
         read_fun = getattr(self.reader, fmt, None)
@@ -151,9 +192,9 @@ CSE_ALIFE_OBJECT_BREAKABLE = (
 CFORM = (
     ('shapes_count',    uint8),
     ('cycle',       'shapes_count', (
-            ('shape_type_{}',   uint8),
-            ('position_{}',     vec3,       'shape_type',   lambda x: x == 0)
-            ('radius_{}',       float32,    'shape_type',   lambda x: x == 0)
+            ('shape_type',   uint8),
+            ('position_{}',     vec3,       'shape_type',   lambda x: x == 0),
+            ('radius_{}',       float32,    'shape_type',   lambda x: x == 0),
             ('matrix_{}',       matrix3x4,  'shape_type',   lambda x: x != 0)
         )
     )
@@ -168,7 +209,7 @@ PH_SKELETON_FLAGS = (
 
 CSE_PH_SKELETON = (
     ('startup_animation',   string),
-    ('flags',               uint8,      PH_SKELETON_FLAGS),
+    ('flags',               flags8,     PH_SKELETON_FLAGS),
     ('source_id',           uint16),
     ('bones_mask',          uint64,     'saved_data',    def_fun),
     ('root_bone',           uint16,     'saved_data',    def_fun),
@@ -218,7 +259,7 @@ ALIFE_OBJECT_HANGING_LAMP_FLAGS = (
     ('r1',              fmt.ALifeObjectHangingLampFlags.R1),
     ('r2',              fmt.ALifeObjectHangingLampFlags.R2),
     ('type_spot',       fmt.ALifeObjectHangingLampFlags.TYPE_SPOT),
-    ('point_ambient'    fmt.ALifeObjectHangingLampFlags.POINT_AMBIENT)
+    ('point_ambient',   fmt.ALifeObjectHangingLampFlags.POINT_AMBIENT)
 )
 
 CSE_ALIFE_OBJECT_HANGING_LAMP = (
@@ -276,10 +317,10 @@ CSE_ALIFE_HUMAN_STALKER = (
 )
 
 CALIFE_HUMAN_BRAIN = (
-    ('equipment_preference_count', uint32)
-    ('cycle',       'equipment_preference_count', ('equipment_preference_{}', uint8))
-    ('weapon_preferences_count', uint32)
-    ('cycle',       'weapon_preferences_count',   ('weapon_preferences_{}',   uint8))
+    ('equipment_preference_count', uint32),
+    ('cycle',       'equipment_preference_count', (('equipment_preference_{}', uint8), )),
+    ('weapon_preferences_count', uint32),
+    ('cycle',       'weapon_preferences_count',   (('weapon_preferences_{}',   uint8), ))
 )
 
 CSE_ALIFE_HELICOPTER = (
@@ -317,12 +358,9 @@ CSE_ALIFE_ITEM_WEAPON = (
     ('ammo_type',       uint8)
 )
 
-CSE_AlifeSmartZone = (
+CSE_ALIFE_SMART_ZONE = (
     ('table_size',      uint8),
-    (
-        'cycle',
-            ('spawned_obj_{}',  uint16,     'table_size')
-    )
+    ('cycle',           'table_size',   (('spawned_obj_{}',  uint16), ))
 )
 
 CSE_ALIFE_ZONE_VISUAL = (
@@ -352,145 +390,145 @@ SE_ZONE_ANOM = (
 ###############################################################################
 
 cse_alife_dynamic_object_visual = (
-    BASE,
-    CSE_ABSTRACT,
-    CSE_ALIFE_OBJECT,
-    CSE_VISUAL
+    *BASE,
+    *CSE_ABSTRACT,
+    *CSE_ALIFE_OBJECT,
+    *CSE_VISUAL
 )
 
 cse_alife_object_breakable = (
     *cse_alife_dynamic_object_visual,
-    CSE_ALIFE_OBJECT_BREAKABLE
+    *CSE_ALIFE_OBJECT_BREAKABLE
 )
 
 cse_alife_object_climable = (
-    BASE,
-    CSE_ABSTRACT,
-    CSE_ALIFE_OBJECT,
-    CFORM
+    *BASE,
+    *CSE_ABSTRACT,
+    *CSE_ALIFE_OBJECT,
+    *CFORM
 )
 
 cse_alife_creature_abstract = (
     *cse_alife_dynamic_object_visual,
-    CSE_ALIFE_CREATURE_ABSTRACT
+    *CSE_ALIFE_CREATURE_ABSTRACT
 )
 
 cse_alife_creature_actor = (
     *cse_alife_creature_abstract,
-    CSE_ALIFE_TRADER_ABSTRACT,
-    CSE_PH_SKELETON,
-    CSE_ALIFE_CREATURE_ACTOR
+    *CSE_ALIFE_TRADER_ABSTRACT,
+    *CSE_PH_SKELETON,
+    *CSE_ALIFE_CREATURE_ACTOR
 )
 
 cse_alife_object_physic = (
     *cse_alife_dynamic_object_visual,
-    CSE_PH_SKELETON,
-    CSE_ALIFE_OBJECT_PHYSIC
+    *CSE_PH_SKELETON,
+    *CSE_ALIFE_OBJECT_PHYSIC
 )
 
 cse_alife_object_hanging_lamp = (
     *cse_alife_dynamic_object_visual,
-    CSE_PH_SKELETON,
-    CSE_ALIFE_OBJECT_HANGING_LAMP
+    *CSE_PH_SKELETON,
+    *CSE_ALIFE_OBJECT_HANGING_LAMP
 )
 
 cse_alife_trader = (
     *cse_alife_dynamic_object_visual,
-    CSE_ALIFE_TRADER_ABSTRACT
+    *CSE_ALIFE_TRADER_ABSTRACT
 )
 
 cse_alife_space_restrictor = (
-    BASE,
-    CSE_ABSTRACT,
-    CSE_ALIFE_OBJECT,
-    CFORM,
-    CSE_ALIFE_SPACE_RESTRICTOR
+    *BASE,
+    *CSE_ABSTRACT,
+    *CSE_ALIFE_OBJECT,
+    *CFORM,
+    *CSE_ALIFE_SPACE_RESTRICTOR
 )
 
 cse_alife_level_changer = (
     *cse_alife_space_restrictor,
-    CSE_ALIFE_LEVEL_CHANGER
+    *CSE_ALIFE_LEVEL_CHANGER
 )
 
 cse_alife_smart_zone = (
     *cse_alife_space_restrictor,
-    CSE_ALIFE_SMART_ZONE
+    *CSE_ALIFE_SMART_ZONE
 )
 
 se_smart_terrain = (
     *cse_alife_smart_zone,
-    SE_SMART_TERRAIN
+    *SE_SMART_TERRAIN
 )
 
 cse_alife_monster_base = (
     *cse_alife_creature_abstract,
-    CSE_ALIFE_MONSTER_ABSTRACT,
-    CSE_PH_SKELETON,
-    CSE_ALIFE_MONSTER_BASE
+    *CSE_ALIFE_MONSTER_ABSTRACT,
+    *CSE_PH_SKELETON,
+    *CSE_ALIFE_MONSTER_BASE
 )
 
 cse_alife_human_stalker = (
-    BASE,
-    CSE_ABSTRACT,
-    CSE_ALIFE_TRADER_ABSTRACT,
-    CSE_ALIFE_OBJECT,
-    CSE_VISUAL,
-    CSE_ALIFE_CREATURE_ABSTRACT,
-    CSE_ALIFE_MONSTER_ABSTRACT,
-    CALIFE_HUMAN_BRAIN,
-    CSE_PH_SKELETON,
-    CSE_ALIFE_HUMAN_STALKER
+    *BASE,
+    *CSE_ABSTRACT,
+    *CSE_ALIFE_TRADER_ABSTRACT,
+    *CSE_ALIFE_OBJECT,
+    *CSE_VISUAL,
+    *CSE_ALIFE_CREATURE_ABSTRACT,
+    *CSE_ALIFE_MONSTER_ABSTRACT,
+    *CALIFE_HUMAN_BRAIN,
+    *CSE_PH_SKELETON,
+    *CSE_ALIFE_HUMAN_STALKER
 )
 
 cse_alife_helicopter = (
     *cse_alife_dynamic_object_visual,
-    CSE_MOTION,
-    CSE_PH_SKELETON,
-    CSE_ALIFE_HELICOPTER
+    *CSE_MOTION,
+    *CSE_PH_SKELETON,
+    *CSE_ALIFE_HELICOPTER
 )
 
 cse_alife_car = (
     *cse_alife_dynamic_object_visual,
-    CSE_PH_SKELETON,
-    CSE_ALIFE_CAR
+    *CSE_PH_SKELETON,
+    *CSE_ALIFE_CAR
 )
 
 cse_alife_item = (
     *cse_alife_dynamic_object_visual,
-    CSE_ALIFE_INVENTORY_ITEM
+    *CSE_ALIFE_INVENTORY_ITEM
 )
 
 cse_alife_item_weapon = (
     *cse_alife_item,
-    CSE_ALifeItemWeapon
+    *CSE_ALIFE_ITEM_WEAPON
 )
 
 cse_alife_item_ammo = (
     *cse_alife_item,
-    CSE_ALIFE_ITEM_AMMO
+    *CSE_ALIFE_ITEM_AMMO
 )
 
 cse_alife_anomalous_zone = (
     *cse_alife_space_restrictor,
-    CSE_ALIFE_CUSTOM_ZONE,
-    CSE_ALIFE_ANOMALOUS_ZONE
+    *CSE_ALIFE_CUSTOM_ZONE,
+    *CSE_ALIFE_ANOMALOUS_ZONE
 )
 
 se_zone_anom = (
-    cse_alife_anomalous_zone,
-    SE_ZONE_ANOM
+    *cse_alife_anomalous_zone,
+    *SE_ZONE_ANOM
 )
 
 cse_alife_zone_visual = (
     *cse_alife_space_restrictor,
-    CSE_ALIFE_CUSTOM_ZONE,
-    CSE_ALIFE_ANOMALOUS_ZONE,
-    CSE_VISUAL,
-    CSE_ALIFE_ZONE_VISUAL
+    *CSE_ALIFE_CUSTOM_ZONE,
+    *CSE_ALIFE_ANOMALOUS_ZONE,
+    *CSE_VISUAL,
+    *CSE_ALIFE_ZONE_VISUAL
 )
 
 cse_alife_torrid_zone = (
     *cse_alife_space_restrictor,
-    CSE_ALIFE_CUSTOM_ZONE,
-    CSE_MOTION
+    *CSE_ALIFE_CUSTOM_ZONE,
+    *CSE_MOTION
 )
