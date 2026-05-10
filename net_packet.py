@@ -45,9 +45,6 @@ class NetPacket:
         name    = prop[0]
         typ     = prop[1]
 
-        if self.debug:
-            print(name, self.reader.file_offs)
-
         if len(prop) == 4:
             cond_name = prop[2]
             cond_fun  = prop[3]
@@ -86,8 +83,6 @@ class NetPacket:
 
         else:
             val = self.get(name, typ)
-            if self.debug:
-                print(val)
 
     def read(self):
         for prop in self.props_desc:

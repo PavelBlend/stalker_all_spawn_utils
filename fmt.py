@@ -8,7 +8,7 @@ class SpawnChunks:
 class SpawnObjectsChunks:
     COUNT   = 0
     OBJECTS = 1
-    UNKNOWN = 2
+    EDGES   = 2
 
 
 class SpawnObjectChunks:

@@ -54,12 +54,9 @@ def read_net_packet(data, classes, file_offset):
     props = clas.net_packet_by_class.get(clas_name, None)
 
     # read packet
-    if section_name == 'actor':
-        net_packet.NetPacket(reader, props, clas_name, debug=True)
-    else:
-        net_packet.NetPacket(reader, props, clas_name)
+    net_packet.NetPacket(reader, props, clas_name)
 
-    # debug(reader)
+    debug(reader)
 
     return section_name, obj_name, reader
 
@@ -119,6 +116,19 @@ def read_spawn_objects(packets, data, classes, file_offset):
         read_spawn_object(packets, object_data, classes, data_offset)
 
 
+def read_spawn_edges(packets, data):
+    reader = read.Reader(data)
+
+    while reader.offset < len(data):
+
+        object_1_id         = reader.uint32()
+        edges_count         = reader.uint32()
+
+        for i in range(edges_count):
+            object_2_id = reader.uint32()
+            edge_weight = reader.float32()
+
+
 def read_objects_count(data):
     reader = read.Reader(data)
     objects_count = reader.uint32()
@@ -137,8 +147,8 @@ def read_objects(packets, data, classes, file_offset):
         elif chunk_id == fmt.SpawnObjectsChunks.OBJECTS:
             read_spawn_objects(packets, chunk_data, classes, data_offset)
 
-        elif chunk_id == fmt.SpawnObjectsChunks.UNKNOWN:
-            pass
+        elif chunk_id == fmt.SpawnObjectsChunks.EDGES:
+            read_spawn_edges(packets, chunk_data)
 
         else:
             raise BaseException('read_objects chunk')
