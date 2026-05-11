@@ -193,10 +193,10 @@ CSE_ALIFE_OBJECT_BREAKABLE = (
 CFORM = (
     ('shapes_count',    uint8),
     ('cycle',       'shapes_count', (
-            ('shape_type',   uint8),
-            ('position_{}',     vec3,       'shape_type',   lambda x: x == 0),
-            ('radius_{}',       float32,    'shape_type',   lambda x: x == 0),
-            ('matrix_{}',       matrix3x4,  'shape_type',   lambda x: x != 0)
+        ('shape_type',   uint8),
+        ('position_{}',     vec3,       'shape_type',   lambda x: x == 0),
+        ('radius_{}',       float32,    'shape_type',   lambda x: x == 0),
+        ('matrix_{}',       matrix3x4,  'shape_type',   lambda x: x != 0)
         )
     )
 )
