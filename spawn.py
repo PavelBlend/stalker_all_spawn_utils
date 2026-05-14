@@ -2,7 +2,6 @@ import read
 import utils
 import header
 import objects
-import net_packet
 import level_points
 import way_points
 import fmt
