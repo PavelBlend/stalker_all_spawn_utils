@@ -16,7 +16,7 @@ def debug(reader):
 
     for name, value, typ in reader.props:
 
-        if name == 'physic':
+        if name == 'space_restrictor_type':
             test.add(value)
             a.append(value)
 

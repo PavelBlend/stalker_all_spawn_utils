@@ -263,14 +263,14 @@ ALIFE_OBJECT_HANGING_LAMP_FLAGS = (
 )
 
 CSE_ALIFE_OBJECT_HANGING_LAMP = (
-    ('color',                       uint32),
+    ('color',                       uint32),    ###### разобрать на RGB
     ('brightness',                  float32),
     ('color_animator',              string),
     ('range',                       float32),
     ('handing_lamp_flags',          flags16,     ALIFE_OBJECT_HANGING_LAMP_FLAGS),
     ('startup_animation',           string),
     ('handing_lamp_fixed_bones',    string),
-    ('health',                      float32),
+    ('handing_lamp_health',         float32),
     ('virtual_size',                float32),
     ('ambient_radius',              float32),
     ('ambient_power',               float32),
