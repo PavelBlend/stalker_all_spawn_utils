@@ -114,7 +114,6 @@ class NetPacket:
 
 ###############################################################################
 
-
 BASE = (
     ('net_packet_size',     uint16),
     ('state',               uint16)
@@ -141,7 +140,7 @@ CSE_ABSTRACT = (
     ('object_id',           uint16),
     ('id_parent',           uint16),
     ('id_phantom',          uint16),
-    ('flags',               flags16,        SPAWN_FLAGS),
+    ('spawn_flags',         flags16,        SPAWN_FLAGS),
     ('version',             uint16,         'check_version',    def_fun),
     ('script_version',      uint16),
     ('client_data_size',    uint16),
@@ -156,7 +155,7 @@ VISUAL_FLAGS = (
 
 CSE_VISUAL = (
     ('visual_name', string),
-    ('flags',       flags8,     VISUAL_FLAGS)
+    ('visual_flags',       flags8,     VISUAL_FLAGS)
 )
 
 ALIFE_OBJECT_FLAGS = (
@@ -176,14 +175,14 @@ ALIFE_OBJECT_FLAGS = (
 )
 
 CSE_ALIFE_OBJECT = (
-    ('graph_id',        uint16),
-    ('distance',        float32),
-    ('direct_control',  uint32),
-    ('node_id',         uint32),
-    ('flags',           flags32,    ALIFE_OBJECT_FLAGS),
-    ('ini_string',      string),
-    ('story_id',        uint32),
-    ('spawn_story_id',  uint32)
+    ('graph_id',                uint16),
+    ('distance',                float32),
+    ('direct_control',          uint32),
+    ('node_id',                 uint32),
+    ('alife_object_flags',      flags32,    ALIFE_OBJECT_FLAGS),
+    ('ini_string',              string),
+    ('story_id',                uint32),
+    ('spawn_story_id',          uint32)
 )
 
 CSE_ALIFE_OBJECT_BREAKABLE = (
@@ -210,7 +209,7 @@ PH_SKELETON_FLAGS = (
 
 CSE_PH_SKELETON = (
     ('startup_animation',   string),
-    ('flags',               flags8,     PH_SKELETON_FLAGS),
+    ('ph_skeleton_flags',   flags8,     PH_SKELETON_FLAGS),
     ('source_id',           uint16),
     ('bones_mask',          uint64,     'saved_data',    def_fun),
     ('root_bone',           uint16,     'saved_data',    def_fun),
@@ -268,7 +267,7 @@ CSE_ALIFE_OBJECT_HANGING_LAMP = (
     ('brightness',          float32),
     ('color_animator',      string),
     ('range_',              float32),
-    ('flags',               uint16,     ALIFE_OBJECT_HANGING_LAMP_FLAGS),
+    ('handing_lamp_flags',  uint16,     ALIFE_OBJECT_HANGING_LAMP_FLAGS),
     ('startup_animation',   string),
     ('fixed_bones',         string),
     ('health',              float32),

@@ -4,10 +4,18 @@ import read
 import net_packet
 
 
+test = set()
+
+
 def debug(reader):
     print(';' + '-'*78)
 
+    global test
+
     for name, value, typ in reader.props:
+
+        '''if name == 'spawn_flags':
+            test.add(value)'''
 
         if name == 'game_type':
             value = fmt.GAME_ID[value]
@@ -152,3 +160,9 @@ def read_objects(packets, data, classes, file_offset):
 
         else:
             raise BaseException('read_objects chunk')
+
+    global test
+    x = list(test)
+    x.sort()
+    for i in x:
+        print(i)
