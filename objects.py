@@ -16,7 +16,7 @@ def debug(reader):
 
     for name, value, typ in reader.props:
 
-        if name == 'physic_type':
+        if name == 'physic_mass':
             test.add(value)
             a.append(value)
 

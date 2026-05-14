@@ -384,7 +384,7 @@ SE_SMART_TERRAIN = (
 
 SE_ZONE_ANOM = (
     ('anom_flags',          uint8),    ####### разобрать
-    ('last_spawn_time',     ctime, 'flag', def_fun)
+    ('last_spawn_time',     ctime,  'anom_flags',   def_fun)
 )
 
 ###############################################################################
