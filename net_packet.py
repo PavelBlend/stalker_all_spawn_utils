@@ -133,7 +133,7 @@ CSE_ABSTRACT = (
     ('section_name',        string),
     ('name',                string),
     ('game_type',           uint8),    # GameID in fmt
-    ('rp',                  uint8),    # use supplied coords
+    ('respawn_point',       uint8),    # use supplied coords
     ('position',            vec3),
     ('direction',           vec3),
     ('respawn_time',        uint16),
@@ -154,8 +154,8 @@ VISUAL_FLAGS = (
 )
 
 CSE_VISUAL = (
-    ('visual_name', string),
-    ('visual_flags',       flags8,     VISUAL_FLAGS)
+    ('visual_name',     string),
+    ('visual_flags',    flags8,     VISUAL_FLAGS)
 )
 
 ALIFE_OBJECT_FLAGS = (
@@ -186,13 +186,13 @@ CSE_ALIFE_OBJECT = (
 )
 
 CSE_ALIFE_OBJECT_BREAKABLE = (
-    ('health', float32),
+    ('breakable_health', float32),
 )
 
 CFORM = (
     ('shapes_count',    uint8),
     ('cycle',       'shapes_count', (
-        ('shape_type',   uint8),
+        ('shape_type',   uint8),    ############### разобрать
         ('position_{}',     vec3,       'shape_type',   lambda x: x == 0),
         ('radius_{}',       float32,    'shape_type',   lambda x: x == 0),
         ('matrix_{}',       matrix3x4,  'shape_type',   lambda x: x != 0)
@@ -208,24 +208,24 @@ PH_SKELETON_FLAGS = (
 )
 
 CSE_PH_SKELETON = (
-    ('startup_animation',   string),
-    ('ph_skeleton_flags',   flags8,     PH_SKELETON_FLAGS),
-    ('source_id',           uint16),
-    ('bones_mask',          uint64,     'saved_data',    def_fun),
-    ('root_bone',           uint16,     'saved_data',    def_fun),
-    ('linear_vel',          vec3,       'saved_data',    def_fun),
-    ('position',            vec3,       'saved_data',    def_fun),
-    ('quaternion',          vec4,       'saved_data',    def_fun),
-    ('enabled',             uint8,      'saved_data',    def_fun),
-    ('vec_min',             vec3,       'saved_data',    def_fun),
-    ('vec_max',             vec3,       'saved_data',    def_fun)
+    ('startup_animation',       string),
+    ('ph_skeleton_flags',       flags8,     PH_SKELETON_FLAGS),
+    ('source_id',               uint16),
+    ('bones_mask',              uint64,     'saved_data',    def_fun),
+    ('root_bone',               uint16,     'saved_data',    def_fun),
+    ('ph_skeleton_linear_vel',  vec3,       'saved_data',    def_fun),
+    ('ph_skeleton_position',    vec3,       'saved_data',    def_fun),
+    ('ph_skeleton_quaternion',  vec4,       'saved_data',    def_fun),
+    ('enabled',                 uint8,      'saved_data',    def_fun),
+    ('ph_skeleton_vec_min',     vec3,       'saved_data',    def_fun),
+    ('ph_skeleton_vec_max',     vec3,       'saved_data',    def_fun)
 )
 
 CSE_ALIFE_CREATURE_ABSTRACT = (
     ('team',                        uint8),
     ('squad',                       uint8),
     ('group',                       uint8),
-    ('health',                      float32),
+    ('creature_health',             float32),
     ('dynamic_out_restrictions',    uint32),
     ('dynamic_in_restrictions',     uint32),
     ('killer_id',                   uint16),
@@ -235,7 +235,7 @@ CSE_ALIFE_CREATURE_ABSTRACT = (
 CSE_ALIFE_TRADER_ABSTRACT = (
     ('money',               uint32),
     ('specific_character',  string),
-    ('trader_flags',        uint32),
+    ('trader_flags',        uint32),    ###################### разобрать
     ('character_profile',   string),
     ('community_index',     int32),
     ('rank',                int32),
@@ -248,9 +248,9 @@ CSE_ALIFE_CREATURE_ACTOR = (
 )
 
 CSE_ALIFE_OBJECT_PHYSIC = (
-    ('type',            uint32),
-    ('mass',            float32),
-    ('fixed_bones',     string)
+    ('physic_type',         uint32),    ###################### разобрать
+    ('physic_mass',         float32),
+    ('physic_fixed_bones',  string)
 )
 
 ALIFE_OBJECT_HANGING_LAMP_FLAGS = (
@@ -263,28 +263,28 @@ ALIFE_OBJECT_HANGING_LAMP_FLAGS = (
 )
 
 CSE_ALIFE_OBJECT_HANGING_LAMP = (
-    ('color',               uint32),
-    ('brightness',          float32),
-    ('color_animator',      string),
-    ('range_',              float32),
-    ('handing_lamp_flags',  uint16,     ALIFE_OBJECT_HANGING_LAMP_FLAGS),
-    ('startup_animation',   string),
-    ('fixed_bones',         string),
-    ('health',              float32),
-    ('virtual_size',        float32),
-    ('ambient_radius',      float32),
-    ('ambient_power',       float32),
-    ('ambient_texture',     string),
-    ('light_texture',       string),
-    ('light_main_bone',     string),
-    ('spot_cone_angle',     float32),
-    ('glow_texture',        string),
-    ('glow_radius',         float32),
-    ('light_ambient_bone',  string)
+    ('color',                       uint32),
+    ('brightness',                  float32),
+    ('color_animator',              string),
+    ('range',                       float32),
+    ('handing_lamp_flags',          uint16,     ALIFE_OBJECT_HANGING_LAMP_FLAGS),
+    ('startup_animation',           string),
+    ('handing_lamp_fixed_bones',    string),
+    ('health',                      float32),
+    ('virtual_size',                float32),
+    ('ambient_radius',              float32),
+    ('ambient_power',               float32),
+    ('ambient_texture',             string),
+    ('light_texture',               string),
+    ('light_main_bone',             string),
+    ('spot_cone_angle',             float32),
+    ('glow_texture',                string),
+    ('glow_radius',                 float32),
+    ('light_ambient_bone',          string)
 )
 
 CSE_ALIFE_SPACE_RESTRICTOR = (
-    ('space_restrictor_type',  uint8),
+    ('space_restrictor_type',  uint8),    ####### разобрать
 )
 
 CSE_ALIFE_LEVEL_CHANGER = (
@@ -306,7 +306,7 @@ CSE_ALIFE_MONSTER_ABSTRACT = (
 
 CSE_ALIFE_MONSTER_BASE = (
     ('spec_object_id',  uint16),
-    ('unknown',         uint16)
+    ('unknown',         uint16)    ####### разобрать
 )
 
 CSE_ALIFE_HUMAN_STALKER = (
@@ -353,9 +353,9 @@ CSE_ALIFE_ANOMALOUS_ZONE = (
 CSE_ALIFE_ITEM_WEAPON = (
     ('current',         uint16),
     ('elapsed',         uint16),
-    ('wpn_state',       uint8),
-    ('addon_flags',     uint8),
-    ('ammo_type',       uint8)
+    ('wpn_state',       uint8),    ####### разобрать
+    ('addon_flags',     uint8),    ####### разобрать
+    ('ammo_type',       uint8)     ####### разобрать
 )
 
 CSE_ALIFE_SMART_ZONE = (
@@ -366,7 +366,7 @@ CSE_ALIFE_SMART_ZONE = (
 CSE_ALIFE_ZONE_VISUAL = (
     ('startup_animation',   string),
     ('attack_animation',    string),
-    ('flag',                uint8)
+    ('zone_visual_flags',   uint8)    ####### разобрать
 )
 
 CSE_ALIFE_ITEM_AMMO = (
@@ -374,7 +374,7 @@ CSE_ALIFE_ITEM_AMMO = (
 )
 
 CSE_ALIFE_CAR = (
-    ('health', float32),
+    ('car_health', float32),
 )
 
 SE_SMART_TERRAIN = (
@@ -383,8 +383,8 @@ SE_SMART_TERRAIN = (
 )
 
 SE_ZONE_ANOM = (
-    ('flag', uint8),
-    ('last_spawn_time', ctime, 'flag', def_fun)
+    ('anom_flags',          uint8),    ####### разобрать
+    ('last_spawn_time',     ctime, 'flag', def_fun)
 )
 
 ###############################################################################

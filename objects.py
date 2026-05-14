@@ -5,19 +5,22 @@ import net_packet
 
 
 test = set()
+a = []
 
 
 def debug(reader):
-    print(';' + '-'*78)
+    # print(';' + '-'*78)
 
     global test
+    global a
 
     for name, value, typ in reader.props:
 
-        '''if name == 'spawn_flags':
-            test.add(value)'''
+        if name == 'physic_type':
+            test.add(value)
+            a.append(value)
 
-        if name == 'game_type':
+        '''if name == 'game_type':
             value = fmt.GAME_ID[value]
             print('{0: <24} = "{1}"'.format(name, value))
 
@@ -43,7 +46,7 @@ def debug(reader):
         else:
             print('{0: <24} = {1}'.format(name, value))
 
-    print('\n'*3)
+    print('\n'*3)'''
 
 
 def read_net_packet(data, classes, file_offset):
@@ -162,7 +165,8 @@ def read_objects(packets, data, classes, file_offset):
             raise BaseException('read_objects chunk')
 
     global test
+    global a
     x = list(test)
     x.sort()
     for i in x:
-        print(i)
+        print(i, a.count(i))
