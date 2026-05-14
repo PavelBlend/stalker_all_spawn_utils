@@ -1,4 +1,4 @@
-from net_packet_spawn import *
+from net_packet_spawn_props import *
 
 
 CSE_ALIFE_DYNAMIC_OBJECT_VISUAL = (
