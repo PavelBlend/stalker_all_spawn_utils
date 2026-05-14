@@ -16,7 +16,7 @@ SPAWN_FLAGS = (
     ('spawn_time',          fmt.SpawnFlags.TIME)
 )
 
-CSE_ABSTRACT = (
+ABSTRACT = (
     ('section_name',        string),
     ('name',                string),
     ('game_type',           uint8),    # GameID in fmt     ####### разобрать
@@ -40,12 +40,12 @@ VISUAL_FLAGS = (
     ('obstacle', fmt.VisualFlags.OBSTACLE),
 )
 
-CSE_VISUAL = (
+VISUAL = (
     ('visual_name',     string),
     ('visual_flags',    flags8,     VISUAL_FLAGS)
 )
 
-ALIFE_OBJECT_FLAGS = (
+OBJECT_FLAGS = (
     ('use_switches',            fmt.ALifeObjectFlags.USE_SWITCHES),
     ('switch_online',           fmt.ALifeObjectFlags.SWITCH_ONLINE),
     ('switch_offline',          fmt.ALifeObjectFlags.SWITCH_OFFLINE),
@@ -61,18 +61,18 @@ ALIFE_OBJECT_FLAGS = (
     ('check_for_separator',     fmt.ALifeObjectFlags.CHECK_FOR_SEPARATOR)
 )
 
-CSE_ALIFE_OBJECT = (
+OBJECT = (
     ('graph_id',                uint16),
     ('distance',                float32),
     ('direct_control',          uint32),
     ('node_id',                 uint32),
-    ('alife_object_flags',      flags32,    ALIFE_OBJECT_FLAGS),
+    ('alife_object_flags',      flags32,    OBJECT_FLAGS),
     ('ini_string',              string),
     ('story_id',                uint32),
     ('spawn_story_id',          uint32)
 )
 
-CSE_ALIFE_OBJECT_BREAKABLE = (
+OBJECT_BREAKABLE = (
     ('breakable_health', float32),
 )
 
@@ -94,7 +94,7 @@ PH_SKELETON_FLAGS = (
     ('not_save',     fmt.PHSkeletonFlags.NOT_SAVE)
 )
 
-CSE_PH_SKELETON = (
+PH_SKELETON = (
     ('startup_animation',       string),
     ('ph_skeleton_flags',       flags8,     PH_SKELETON_FLAGS),
     ('source_id',               uint16),
@@ -108,7 +108,7 @@ CSE_PH_SKELETON = (
     ('ph_skeleton_vec_max',     vec3,       'saved_data',    def_fun)
 )
 
-CSE_ALIFE_CREATURE_ABSTRACT = (
+CREATURE_ABSTRACT = (
     ('team',                        uint8),
     ('squad',                       uint8),
     ('group',                       uint8),
@@ -119,7 +119,7 @@ CSE_ALIFE_CREATURE_ABSTRACT = (
     ('game_death_time',             uint64)
 )
 
-CSE_ALIFE_TRADER_ABSTRACT = (
+TRADER_ABSTRACT = (
     ('money',               uint32),
     ('specific_character',  string),
     ('trader_flags',        uint32),    ###################### разобрать
@@ -130,17 +130,17 @@ CSE_ALIFE_TRADER_ABSTRACT = (
     ('character_name',      string)
 )
 
-CSE_ALIFE_CREATURE_ACTOR = (
+CREATURE_ACTOR = (
     ('holder_id', uint16),
 )
 
-CSE_ALIFE_OBJECT_PHYSIC = (
+OBJECT_PHYSIC = (
     ('physic_type',         uint32),    ###################### разобрать
     ('physic_mass',         float32),
     ('physic_fixed_bones',  string)
 )
 
-ALIFE_OBJECT_HANGING_LAMP_FLAGS = (
+HANGING_LAMP_FLAGS = (
     ('physic',          fmt.ALifeObjectHangingLampFlags.PHYSIC),
     ('cast_shadow',     fmt.ALifeObjectHangingLampFlags.CAST_SHADOW),
     ('r1',              fmt.ALifeObjectHangingLampFlags.R1),
@@ -149,12 +149,12 @@ ALIFE_OBJECT_HANGING_LAMP_FLAGS = (
     ('point_ambient',   fmt.ALifeObjectHangingLampFlags.POINT_AMBIENT)
 )
 
-CSE_ALIFE_OBJECT_HANGING_LAMP = (
+HANGING_LAMP = (
     ('color',                       uint32),    ###### разобрать на RGB
     ('brightness',                  float32),
     ('color_animator',              string),
     ('range',                       float32),
-    ('handing_lamp_flags',          flags16,     ALIFE_OBJECT_HANGING_LAMP_FLAGS),
+    ('handing_lamp_flags',          flags16,     HANGING_LAMP_FLAGS),
     ('startup_animation',           string),
     ('handing_lamp_fixed_bones',    string),
     ('handing_lamp_health',         float32),
@@ -170,11 +170,11 @@ CSE_ALIFE_OBJECT_HANGING_LAMP = (
     ('light_ambient_bone',          string)
 )
 
-CSE_ALIFE_SPACE_RESTRICTOR = (
+SPACE_RESTRICTOR = (
     ('space_restrictor_type',  uint8),    ####### разобрать
 )
 
-CSE_ALIFE_LEVEL_CHANGER = (
+LEVEL_CHANGER = (
     ('next_graph_id',           uint16),
     ('next_node_id',            uint32),
     ('next_position',           vec3),
@@ -184,46 +184,46 @@ CSE_ALIFE_LEVEL_CHANGER = (
     ('silent_mode',             uint8)    ####### разобрать
 )
 
-CSE_ALIFE_MONSTER_ABSTRACT = (
+MONSTER_ABSTRACT = (
     ('out_space_restrictors',   string),
     ('in_space_restrictors',    string),
     ('smart_terrain_id',        uint16),
     ('task_reached',            uint8)
 )
 
-CSE_ALIFE_MONSTER_BASE = (
+MONSTER_BASE = (
     ('spec_object_id',  uint16),
     ('unknown',         uint16)    ####### разобрать
 )
 
-CSE_ALIFE_HUMAN_STALKER = (
+HUMAN_STALKER = (
     ('job_online',              uint8),
     ('job_online_condlist',     string,     'job_online',     lambda x: x > 2),
     ('was_in_smart_terrain',    uint8),
     ('death_droped',            uint8)
 )
 
-CALIFE_HUMAN_BRAIN = (
+HUMAN_BRAIN = (
     ('equipment_preference_count', uint32),
     ('cycle',       'equipment_preference_count', (('equipment_preference_{}', uint8), )),
     ('weapon_preferences_count', uint32),
     ('cycle',       'weapon_preferences_count',   (('weapon_preferences_{}',   uint8), ))
 )
 
-CSE_ALIFE_HELICOPTER = (
+HELICOPTER = (
     ('startup_animation',   string),
     ('engine_sound',        string)
 )
 
-CSE_MOTION = (
+MOTION = (
     ('motion_name', string),
 )
 
-CSE_ALIFE_INVENTORY_ITEM = (
+INVENTORY_ITEM = (
     ('condition', float32),
 )
 
-CSE_ALIFE_CUSTOM_ZONE = (
+CUSTOM_ZONE = (
     ('max_power',           float32),
     ('owner_id',            uint32),
     ('enabled_time',        uint32),
@@ -231,13 +231,13 @@ CSE_ALIFE_CUSTOM_ZONE = (
     ('start_time_shift',    uint32)
 )
 
-CSE_ALIFE_ANOMALOUS_ZONE = (
+ANOMALOUS_ZONE = (
     ('offline_interactive_radius',  float32),
     ('artefact_spawn_count',        uint16),
     ('artefact_position_offset',    uint32)
 )
 
-CSE_ALIFE_ITEM_WEAPON = (
+ITEM_WEAPON = (
     ('current',         uint16),
     ('elapsed',         uint16),
     ('wpn_state',       uint8),    ####### разобрать
@@ -245,31 +245,31 @@ CSE_ALIFE_ITEM_WEAPON = (
     ('ammo_type',       uint8)     ####### разобрать
 )
 
-CSE_ALIFE_SMART_ZONE = (
+SMART_ZONE = (
     ('table_size',      uint8),
     ('cycle',           'table_size',   (('spawned_obj_{}',  uint16), ))
 )
 
-CSE_ALIFE_ZONE_VISUAL = (
+ZONE_VISUAL = (
     ('startup_animation',   string),
     ('attack_animation',    string),
     ('zone_visual_flags',   uint8)    ####### разобрать
 )
 
-CSE_ALIFE_ITEM_AMMO = (
+ITEM_AMMO = (
     ('elapsed', uint16),
 )
 
-CSE_ALIFE_CAR = (
+CAR = (
     ('car_health', float32),
 )
 
-SE_SMART_TERRAIN = (
+SMART_TERRAIN = (
     ('duration_end',    ctime),
     ('idle_end',        ctime)
 )
 
-SE_ZONE_ANOM = (
+ZONE_ANOM = (
     ('anom_flags',          uint8),    ####### разобрать
     ('last_spawn_time',     ctime,  'anom_flags',   def_fun)
 )
