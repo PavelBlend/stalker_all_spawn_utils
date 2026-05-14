@@ -267,7 +267,7 @@ CSE_ALIFE_OBJECT_HANGING_LAMP = (
     ('brightness',                  float32),
     ('color_animator',              string),
     ('range',                       float32),
-    ('handing_lamp_flags',          uint16,     ALIFE_OBJECT_HANGING_LAMP_FLAGS),
+    ('handing_lamp_flags',          flags16,     ALIFE_OBJECT_HANGING_LAMP_FLAGS),
     ('startup_animation',           string),
     ('handing_lamp_fixed_bones',    string),
     ('health',                      float32),
