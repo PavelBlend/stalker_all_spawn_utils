@@ -132,8 +132,8 @@ SPAWN_FLAGS = (
 CSE_ABSTRACT = (
     ('section_name',        string),
     ('name',                string),
-    ('game_type',           uint8),    # GameID in fmt
-    ('respawn_point',       uint8),    # use supplied coords
+    ('game_type',           uint8),    # GameID in fmt     ####### разобрать
+    ('respawn_point',       uint8),     ####### разобрать - use supplied coords
     ('position',            vec3),
     ('direction',           vec3),
     ('respawn_time',        uint16),
