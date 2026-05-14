@@ -16,7 +16,7 @@ def debug(reader):
 
     for name, value, typ in reader.props:
 
-        if name == 'space_restrictor_type':
+        if name == 'silent_mode':
             test.add(value)
             a.append(value)
 

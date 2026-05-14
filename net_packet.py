@@ -288,13 +288,13 @@ CSE_ALIFE_SPACE_RESTRICTOR = (
 )
 
 CSE_ALIFE_LEVEL_CHANGER = (
-    ('next_graph_id',  uint16),
-    ('next_node_id',  uint32),
-    ('next_position',  vec3),
-    ('angles',  vec3),
-    ('level_to_change',  string),
-    ('level_point_to_change',  string),
-    ('silent_mode',  uint8)
+    ('next_graph_id',           uint16),
+    ('next_node_id',            uint32),
+    ('next_position',           vec3),
+    ('angles',                  vec3),
+    ('level_to_change',         string),
+    ('level_point_to_change',   string),
+    ('silent_mode',             uint8)    ####### разобрать
 )
 
 CSE_ALIFE_MONSTER_ABSTRACT = (
