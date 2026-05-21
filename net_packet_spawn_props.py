@@ -140,7 +140,7 @@ CREATURE_ACTOR = (
 )
 
 OBJECT_PHYSIC = (
-    ('physic_type',         uint32),    ###################### разобрать
+    ('physic_type',         enum32,     fmt.PHYSIC_OBJECT_TYPE),
     ('physic_mass',         float32),
     ('physic_fixed_bones',  string)
 )

@@ -97,6 +97,11 @@ class Reader:
         self.offs(2)
         return value
 
+    def enum32(self):
+        value = struct.unpack_from('<I', self.data, self.offset)[0]
+        self.offs(4)
+        return value
+
     def string(self):
         byte = None
         zero_pos = self.offset

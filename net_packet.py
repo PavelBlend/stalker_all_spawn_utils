@@ -16,6 +16,7 @@ flags16     = 'flags16'
 flags32     = 'flags32'
 enum8       = 'enum8'
 enum16      = 'enum16'
+enum32      = 'enum32'
 string      = 'string'
 ctime       = 'ctime'
 get_bytes   = 'get_bytes'
@@ -69,7 +70,7 @@ class NetPacket:
                 flag_value = bool(flags_value & flag_mask)
                 self.append(flag_name, flag_value, typ)
 
-        elif typ in (enum8, enum16):
+        elif typ in (enum8, enum16, enum32):
             enum_names = prop[2]
             val = self.get(name, typ, append=False)
             enum_name = enum_names.get(val, None)

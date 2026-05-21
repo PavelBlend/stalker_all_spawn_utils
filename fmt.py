@@ -86,6 +86,26 @@ SHAPE_TYPE = {
 }
 
 
+class PhysicObjectType:
+    BOX             = 0
+    FIXED_CHAIN     = 1
+    FREE_CHAIN      = 2
+    SKELETON        = 3
+
+
+PHYSIC_BOX              = 'Box'
+PHYSIC_FIXED_CHAIN      = 'Fixed Chain'
+PHYSIC_FREE_CHAIN       = 'Free Chain'
+PHYSIC_SKELETON         = 'Skeleton'
+
+PHYSIC_OBJECT_TYPE = {
+    PhysicObjectType.BOX            :   PHYSIC_BOX,
+    PhysicObjectType.FIXED_CHAIN    :   PHYSIC_FIXED_CHAIN,
+    PhysicObjectType.FREE_CHAIN     :   PHYSIC_FREE_CHAIN,
+    PhysicObjectType.SKELETON       :   PHYSIC_SKELETON
+}
+
+
 class SpawnFlags:
     OBJECT_LOCAL        = 1 << 0    # after spawn it becomes local (authorative)
     OBJECT_HAS_UPDATE   = 1 << 2    # after spawn info it has update inside message

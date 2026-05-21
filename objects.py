@@ -9,7 +9,7 @@ def debug(reader):
 
     for name, value, typ in reader.props:
 
-        if typ in (net_packet.enum8, net_packet.enum16):
+        if typ in (net_packet.enum8, net_packet.enum16, net_packet.enum32):
             print('{0: <30} = "{1}"'.format(name, value))
 
         elif typ == net_packet.comment:
