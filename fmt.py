@@ -47,6 +47,12 @@ class SpawnStates:
     SPAWN   = 1
 
 
+SPAWN_STATE = {
+    SpawnStates.UPDATE      :   'Update',
+    SpawnStates.SPAWN       :   'Spawn'
+}
+
+
 class GameID:
     ANY             = 0
     SINGLE          = 1

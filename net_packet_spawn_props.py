@@ -3,7 +3,7 @@ from net_packet import *
 
 BASE = (
     ('net_packet_size',     uint16),
-    ('state',               uint16)
+    ('state',               enum16,     fmt.SPAWN_STATE)
 )
 
 SPAWN_FLAGS = (
