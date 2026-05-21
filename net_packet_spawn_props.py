@@ -204,8 +204,8 @@ MONSTER_BASE = (
 HUMAN_STALKER = (
     ('job_online',              uint8),
     ('job_online_condlist',     string,     'job_online',     lambda x: x > 2),
-    ('was_in_smart_terrain',    uint8),
-    ('death_droped',            uint8)
+    ('was_in_smart_terrain',    bool8),
+    ('death_droped',            bool8)
 )
 
 HUMAN_BRAIN = (
@@ -216,16 +216,16 @@ HUMAN_BRAIN = (
 )
 
 HELICOPTER = (
-    ('startup_animation',   string),
-    ('engine_sound',        string)
+    ('helicopter_startup_animation',    string),
+    ('helicopter_engine_sound',         string)
 )
 
 MOTION = (
-    ('motion_name', string),
+    ('motion_name',     string),
 )
 
 INVENTORY_ITEM = (
-    ('condition', float32),
+    ('condition',   float32),
 )
 
 CUSTOM_ZONE = (
