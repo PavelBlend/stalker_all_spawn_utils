@@ -47,6 +47,11 @@ class Reader:
         self.offs(4)
         return value
 
+    def bool8(self):
+        value = struct.unpack_from('<B', self.data, self.offset)[0]
+        self.offs(1)
+        return bool(value)
+
     def bool32(self):
         value = struct.unpack_from('<I', self.data, self.offset)[0]
         self.offs(4)
