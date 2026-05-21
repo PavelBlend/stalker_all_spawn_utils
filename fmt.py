@@ -132,4 +132,9 @@ class ALifeObjectHangingLampFlags:
     POINT_AMBIENT       = 1 << 5
 
 
+class TraderFlags:
+    INFINITE_AMMO   = 1 << 0
+    DUMMY           = 0xffffffff
+
+
 XR_AI_VERSION = 8

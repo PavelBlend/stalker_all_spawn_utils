@@ -119,10 +119,15 @@ CREATURE_ABSTRACT = (
     ('game_death_time',             uint64)
 )
 
+TRADER_FLAGS = (
+    ('infinite_ammo',   fmt.TraderFlags.INFINITE_AMMO),
+    ('dummy',           fmt.TraderFlags.DUMMY)
+)
+
 TRADER_ABSTRACT = (
     ('money',               uint32),
     ('specific_character',  string),
-    ('trader_flags',        uint32),    ###################### разобрать
+    ('trader_flags',        flags32,    TRADER_FLAGS),
     ('character_profile',   string),
     ('community_index',     int32),
     ('rank',                int32),
