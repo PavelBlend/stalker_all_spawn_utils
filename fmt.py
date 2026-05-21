@@ -48,12 +48,12 @@ class SpawnStates:
 
 
 class GameID:
-    ANY = 0
-    SINGLE = 1
-    DEATHMATCH = 2
-    CS = 5
-    TEAMDEATHMATCH = 6
-    ARTEFACTHUNT = 7
+    ANY             = 0
+    SINGLE          = 1
+    DEATHMATCH      = 2
+    CS              = 5
+    TEAMDEATHMATCH  = 6
+    ARTEFACTHUNT    = 7
 
 
 GAME_ID = {

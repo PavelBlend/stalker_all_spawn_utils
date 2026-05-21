@@ -138,6 +138,7 @@ class Reader:
             seconds,
             milliseconds
         )
+
         return value
 
     def skip(self, size):
@@ -150,6 +151,7 @@ class Reader:
 
 
 class Chunks:
+
     def __init__(self, data, file_offs=0):
         self.data = data
         self.size = len(data)
