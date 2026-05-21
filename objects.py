@@ -9,8 +9,7 @@ def debug(reader):
 
     for name, value, typ in reader.props:
 
-        if name == 'game_type':
-            value = fmt.GAME_ID[value]
+        if typ == net_packet.enum8:
             print('{0: <24} = "{1}"'.format(name, value))
 
         elif typ == net_packet.comment:
