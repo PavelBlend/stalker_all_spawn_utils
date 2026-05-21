@@ -8,7 +8,7 @@ BASE = (
 
 SPAWN_FLAGS = (
     ('object_local',        fmt.SpawnFlags.OBJECT_LOCAL),
-    ('object_upd',          fmt.SpawnFlags.OBJECT_HAS_UPDATE),
+    ('object_has_update',   fmt.SpawnFlags.OBJECT_HAS_UPDATE),
     ('object_as_player',    fmt.SpawnFlags.OBJECT_AS_PLAYER),
     ('object_phantom',      fmt.SpawnFlags.OBJECT_PHANTOM),
     ('check_version',       fmt.SpawnFlags.VERSION),
@@ -37,7 +37,7 @@ ABSTRACT = (
 )
 
 VISUAL_FLAGS = (
-    ('obstacle', fmt.VisualFlags.OBSTACLE),
+    ('visual_obstacle', fmt.VisualFlags.OBSTACLE),
 )
 
 VISUAL = (
@@ -64,7 +64,7 @@ OBJECT_FLAGS = (
 OBJECT = (
     ('graph_id',                uint16),
     ('distance',                float32),
-    ('direct_control',          uint32),
+    ('direct_control',          bool32),
     ('node_id',                 uint32),
     ('alife_object_flags',      flags32,    OBJECT_FLAGS),
     ('ini_string',              string),

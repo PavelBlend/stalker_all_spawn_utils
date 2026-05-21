@@ -47,6 +47,11 @@ class Reader:
         self.offs(4)
         return value
 
+    def bool32(self):
+        value = struct.unpack_from('<I', self.data, self.offset)[0]
+        self.offs(4)
+        return bool(value)
+
     def vec3(self):
         value = struct.unpack_from('<3f', self.data, self.offset)
         self.offs(12)
