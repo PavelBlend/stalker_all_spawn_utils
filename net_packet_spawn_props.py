@@ -73,16 +73,16 @@ OBJECT = (
 )
 
 OBJECT_BREAKABLE = (
-    ('breakable_health', float32),
+    ('breakable_health',    float32),
 )
 
 CFORM = (
     ('shapes_count',    uint8),
     ('cycle',       'shapes_count', (
-        ('shape_type',   uint8),    ############### разобрать
-        ('position_{}',     vec3,       'shape_type',   lambda x: x == 0),
-        ('radius_{}',       float32,    'shape_type',   lambda x: x == 0),
-        ('matrix_{}',       matrix3x4,  'shape_type',   lambda x: x != 0)
+        ('shape_type_{}',   enum8,      fmt.SHAPE_TYPE),
+        ('position_{}',     vec3,       'shape_type_{}',    lambda x: x == fmt.SHAPE_SPHERE),
+        ('radius_{}',       float32,    'shape_type_{}',    lambda x: x == fmt.SHAPE_SPHERE),
+        ('matrix_{}',       matrix3x4,  'shape_type_{}',    lambda x: x != fmt.SHAPE_SPHERE)
         )
     )
 )

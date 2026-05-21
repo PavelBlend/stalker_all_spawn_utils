@@ -72,6 +72,20 @@ GAME_ID = {
 }
 
 
+class ShapeType:
+    SPHERE      = 0
+    BOX         = 1
+
+
+SHAPE_SPHERE    = 'Sphere'
+SHAPE_BOX       = 'Box'
+
+SHAPE_TYPE = {
+    ShapeType.SPHERE    :   SHAPE_SPHERE,
+    ShapeType.BOX       :   SHAPE_BOX
+}
+
+
 class SpawnFlags:
     OBJECT_LOCAL        = 1 << 0    # after spawn it becomes local (authorative)
     OBJECT_HAS_UPDATE   = 1 << 2    # after spawn info it has update inside message

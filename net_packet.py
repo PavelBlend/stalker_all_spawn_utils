@@ -43,7 +43,7 @@ class NetPacket:
         # new line
         reader.props.append(['', None, comment])
 
-    def read_prop(self, prop):
+    def read_prop(self, prop, index=None):
 
         name    = prop[0]
         typ     = prop[1]
@@ -51,6 +51,9 @@ class NetPacket:
         if len(prop) == 4:
             cond_name = prop[2]
             cond_fun  = prop[3]
+
+            if index is not None:
+                cond_name = cond_name.format(index)
 
             cond_value = self.get_readed_prop(cond_name)
             cond = cond_fun(cond_value)
@@ -69,7 +72,9 @@ class NetPacket:
         elif typ in (enum8, enum16):
             enum_names = prop[2]
             val = self.get(name, typ, append=False)
-            enum_name = enum_names[val]
+            enum_name = enum_names.get(val, None)
+            if enum_name is None:
+                enum_name = 'Unknown_{}'.format(val)
             self.append(name, enum_name, typ)
 
         elif typ == get_bytes:
@@ -88,7 +93,7 @@ class NetPacket:
                     prop_name = cycle_prop[0].format(i)
                     prop = list(cycle_prop)
                     prop[0] = prop_name
-                    self.read_prop(prop)
+                    self.read_prop(prop, index=i)
 
         else:
             val = self.get(name, typ)
