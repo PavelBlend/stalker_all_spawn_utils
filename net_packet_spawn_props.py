@@ -55,7 +55,7 @@ OBJECT_FLAGS = (
     ('offline_no_move',         fmt.ALifeObjectFlags.OFFLINE_NO_MOVE),
     ('used_ai_locations',       fmt.ALifeObjectFlags.USED_AI_LOCATIONS),
     ('group_behaviour',         fmt.ALifeObjectFlags.GROUP_BEHAVIOUR),
-    ('can_save',                fmt.ALifeObjectFlags.CAN_SAVE),
+    ('object_can_save',         fmt.ALifeObjectFlags.CAN_SAVE),
     ('visible_for_map',         fmt.ALifeObjectFlags.VISIBLE_FOR_MAP),
     ('use_smart_terrains',      fmt.ALifeObjectFlags.USE_SMART_TERRAINS),
     ('check_for_separator',     fmt.ALifeObjectFlags.CHECK_FOR_SEPARATOR)
@@ -88,24 +88,24 @@ CFORM = (
 )
 
 PH_SKELETON_FLAGS = (
-    ('active',       fmt.PHSkeletonFlags.ACTIVE),
-    ('spawn_copy',   fmt.PHSkeletonFlags.SPAWN_COPY),
-    ('saved_data',   fmt.PHSkeletonFlags.SAVED_DATA),
-    ('not_save',     fmt.PHSkeletonFlags.NOT_SAVE)
+    ('skeleton_active',         fmt.PHSkeletonFlags.ACTIVE),
+    ('skeleton_spawn_copy',     fmt.PHSkeletonFlags.SPAWN_COPY),
+    ('skeleton_saved_data',     fmt.PHSkeletonFlags.SAVED_DATA),
+    ('skeleton_not_save',       fmt.PHSkeletonFlags.NOT_SAVE)
 )
 
 PH_SKELETON = (
-    ('startup_animation',       string),
-    ('ph_skeleton_flags',       flags8,     PH_SKELETON_FLAGS),
-    ('source_id',               uint16),
-    ('bones_mask',              uint64,     'saved_data',    def_fun),
-    ('root_bone',               uint16,     'saved_data',    def_fun),
-    ('ph_skeleton_linear_vel',  vec3,       'saved_data',    def_fun),
-    ('ph_skeleton_position',    vec3,       'saved_data',    def_fun),
-    ('ph_skeleton_quaternion',  vec4,       'saved_data',    def_fun),
-    ('enabled',                 uint8,      'saved_data',    def_fun),
-    ('ph_skeleton_vec_min',     vec3,       'saved_data',    def_fun),
-    ('ph_skeleton_vec_max',     vec3,       'saved_data',    def_fun)
+    ('skeleton_startup_animation',  string),
+    ('skeleton_flags',              flags8,     PH_SKELETON_FLAGS),
+    ('skeleton_source_id',          uint16),
+    ('skeleton_bones_mask',         uint64,     'skeleton_saved_data',      def_fun),
+    ('skeleton_root_bone',          uint16,     'skeleton_saved_data',      def_fun),
+    ('skeleton_linear_vel',         vec3,       'skeleton_saved_data',      def_fun),
+    ('skeleton_position',           vec3,       'skeleton_saved_data',      def_fun),
+    ('skeleton_quaternion',         vec4,       'skeleton_saved_data',      def_fun),
+    ('skeleton_enabled',            uint8,      'skeleton_saved_data',      def_fun),
+    ('skeleton_vec_min',            vec3,       'skeleton_saved_data',      def_fun),
+    ('skeleton_vec_max',            vec3,       'skeleton_saved_data',      def_fun)
 )
 
 CREATURE_ABSTRACT = (
