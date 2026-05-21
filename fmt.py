@@ -106,6 +106,32 @@ PHYSIC_OBJECT_TYPE = {
 }
 
 
+class RestrictorType:
+    DEFAULT_NONE    = 0
+    DEFAULT_OUT     = 1
+    DEFAULT_IN      = 2
+    NONE            = 3
+    IN              = 4
+    OUT             = 5
+
+
+RESTRICTOR_TYPE_DEFAULT_NONE    = 'Default None'
+RESTRICTOR_TYPE_DEFAULT_OUT     = 'Default Out'
+RESTRICTOR_TYPE_DEFAULT_IN      = 'Default In'
+RESTRICTOR_TYPE_NONE            = 'None'
+RESTRICTOR_TYPE_IN              = 'In'
+RESTRICTOR_TYPE_OUT             = 'Out'
+
+RESTRICTOR_TYPE = {
+    RestrictorType.DEFAULT_NONE     :   RESTRICTOR_TYPE_DEFAULT_NONE,
+    RestrictorType.DEFAULT_OUT      :   RESTRICTOR_TYPE_DEFAULT_OUT,
+    RestrictorType.DEFAULT_IN       :   RESTRICTOR_TYPE_DEFAULT_IN,
+    RestrictorType.NONE             :   RESTRICTOR_TYPE_NONE,
+    RestrictorType.IN               :   RESTRICTOR_TYPE_IN,
+    RestrictorType.OUT              :   RESTRICTOR_TYPE_OUT
+}
+
+
 class SpawnFlags:
     OBJECT_LOCAL        = 1 << 0    # after spawn it becomes local (authorative)
     OBJECT_HAS_UPDATE   = 1 << 2    # after spawn info it has update inside message

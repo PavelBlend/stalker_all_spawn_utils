@@ -146,37 +146,37 @@ OBJECT_PHYSIC = (
 )
 
 HANGING_LAMP_FLAGS = (
-    ('physic',          fmt.ALifeObjectHangingLampFlags.PHYSIC),
-    ('cast_shadow',     fmt.ALifeObjectHangingLampFlags.CAST_SHADOW),
-    ('r1',              fmt.ALifeObjectHangingLampFlags.R1),
-    ('r2',              fmt.ALifeObjectHangingLampFlags.R2),
-    ('type_spot',       fmt.ALifeObjectHangingLampFlags.TYPE_SPOT),
-    ('point_ambient',   fmt.ALifeObjectHangingLampFlags.POINT_AMBIENT)
+    ('handing_lamp_physic',             fmt.ALifeObjectHangingLampFlags.PHYSIC),
+    ('handing_lamp_cast_shadow',        fmt.ALifeObjectHangingLampFlags.CAST_SHADOW),
+    ('handing_lamp_r1',                 fmt.ALifeObjectHangingLampFlags.R1),
+    ('handing_lamp_r2',                 fmt.ALifeObjectHangingLampFlags.R2),
+    ('handing_lamp_type_spot',          fmt.ALifeObjectHangingLampFlags.TYPE_SPOT),
+    ('handing_lamp_point_ambient',      fmt.ALifeObjectHangingLampFlags.POINT_AMBIENT)
 )
 
 HANGING_LAMP = (
-    ('color',                       uint32),    ###### разобрать на RGB
-    ('brightness',                  float32),
-    ('color_animator',              string),
-    ('range',                       float32),
-    ('handing_lamp_flags',          flags16,     HANGING_LAMP_FLAGS),
-    ('startup_animation',           string),
-    ('handing_lamp_fixed_bones',    string),
-    ('handing_lamp_health',         float32),
-    ('virtual_size',                float32),
-    ('ambient_radius',              float32),
-    ('ambient_power',               float32),
-    ('ambient_texture',             string),
-    ('light_texture',               string),
-    ('light_main_bone',             string),
-    ('spot_cone_angle',             float32),
-    ('glow_texture',                string),
-    ('glow_radius',                 float32),
-    ('light_ambient_bone',          string)
+    ('color',                           uint32),    ###### разобрать на RGB
+    ('brightness',                      float32),
+    ('color_animator',                  string),
+    ('range',                           float32),
+    ('handing_lamp_flags',              flags16,     HANGING_LAMP_FLAGS),
+    ('handing_lamp_startup_animation',  string),
+    ('handing_lamp_fixed_bones',        string),
+    ('handing_lamp_health',             float32),
+    ('virtual_size',                    float32),
+    ('ambient_radius',                  float32),
+    ('ambient_power',                   float32),
+    ('ambient_texture',                 string),
+    ('light_texture',                   string),
+    ('light_main_bone',                 string),
+    ('spot_cone_angle',                 float32),
+    ('glow_texture',                    string),
+    ('glow_radius',                     float32),
+    ('light_ambient_bone',              string)
 )
 
 SPACE_RESTRICTOR = (
-    ('space_restrictor_type',  uint8),    ####### разобрать
+    ('space_restrictor_type',       enum8,      fmt.RESTRICTOR_TYPE),
 )
 
 LEVEL_CHANGER = (
