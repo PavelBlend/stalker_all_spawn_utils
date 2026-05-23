@@ -63,12 +63,11 @@ def read_links(data):
 
     while reader.offset < len(data):
 
-        point_id        = reader.uint32()
+        point_1         = reader.uint32()
         edge_count      = reader.uint32()
 
         for edge_id in range(edge_count):
-            edge_1          = reader.uint16()
-            edge_2          = reader.uint16()
+            point_2         = reader.uint32()
             probability     = reader.float32()
 
 
