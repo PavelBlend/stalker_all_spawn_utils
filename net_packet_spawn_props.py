@@ -253,9 +253,9 @@ ADDON_FLAGS = (
 ITEM_WEAPON = (
     ('current',         uint16),
     ('elapsed',         uint16),
-    ('wpn_state',       uint8),    ####### разобрать
+    ('wpn_state',       uint8),
     ('addon_flags',     flags8,     ADDON_FLAGS),
-    ('ammo_type',       uint8)     ####### разобрать
+    ('ammo_type',       uint8)
 )
 
 SMART_ZONE = (
