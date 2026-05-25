@@ -263,10 +263,15 @@ SMART_ZONE = (
     ('cycle',           'table_size',   (('spawned_obj_{}',  uint16), ))
 )
 
+ZONE_VISUAL_FLAGS = (
+    ('has_last_spawn_time', fmt.ZoneVisualFlags.HAS_LAST_SPAWN_TIME),
+)
+
 ZONE_VISUAL = (
     ('startup_animation',   string),
     ('attack_animation',    string),
-    ('zone_visual_flags',   uint8)    ####### разобрать
+    ('zone_visual_flags',   flags8,     ZONE_VISUAL_FLAGS),
+    ('last_spawn_time',     ctime,      'has_last_spawn_time',   lambda x: x == 1)
 )
 
 ITEM_AMMO = (

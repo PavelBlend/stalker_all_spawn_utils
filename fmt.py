@@ -189,4 +189,8 @@ class WeaponAddonFlags:
     SILENCER            = 1 << 2
 
 
+class ZoneVisualFlags:
+    HAS_LAST_SPAWN_TIME     = 1 << 0
+
+
 XR_AI_VERSION = 8
