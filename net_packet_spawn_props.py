@@ -197,8 +197,10 @@ MONSTER_ABSTRACT = (
 )
 
 MONSTER_BASE = (
-    ('spec_object_id',  uint16),
-    ('unknown',         uint16)    ####### разобрать
+    ('spec_object_id',          uint16),
+    ('job_online',              uint8),
+    ('job_online_condlist',     string,     'job_online',     lambda x: x > 2),
+    ('was_in_smart_terrain',    bool8)
 )
 
 HUMAN_STALKER = (
