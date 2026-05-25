@@ -189,7 +189,7 @@ class WeaponAddonFlags:
     SILENCER            = 1 << 2
 
 
-class ZoneVisualFlags:
+class ZoneFlags:
     HAS_LAST_SPAWN_TIME     = 1 << 0
 
 
