@@ -244,11 +244,17 @@ ANOMALOUS_ZONE = (
     ('artefact_position_offset',    uint32)
 )
 
+ADDON_FLAGS = (
+    ('scope',               fmt.WeaponAddonFlags.SCOPE),
+    ('grenade_launcher',    fmt.WeaponAddonFlags.GRENADE_LAUNCHER),
+    ('silencer',            fmt.WeaponAddonFlags.SILENCER)
+)
+
 ITEM_WEAPON = (
     ('current',         uint16),
     ('elapsed',         uint16),
     ('wpn_state',       uint8),    ####### разобрать
-    ('addon_flags',     uint8),    ####### разобрать
+    ('addon_flags',     flags8,     ADDON_FLAGS),
     ('ammo_type',       uint8)     ####### разобрать
 )
 

@@ -183,4 +183,10 @@ class TraderFlags:
     DUMMY           = 0xffffffff
 
 
+class WeaponAddonFlags:
+    SCOPE               = 1 << 0
+    GRENADE_LAUNCHER    = 1 << 1
+    SILENCER            = 1 << 2
+
+
 XR_AI_VERSION = 8
