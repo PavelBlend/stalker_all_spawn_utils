@@ -20,7 +20,7 @@ ABSTRACT = (
     ('section_name',        string),
     ('name',                string),
     ('game_type',           enum8,          fmt.GAME_ID),
-    ('respawn_point',       uint8),     ####### разобрать - use supplied coords
+    ('respawn_point',       respawn_point),
     ('position',            vec3),
     ('direction',           vec3),
     ('respawn_time',        uint16),

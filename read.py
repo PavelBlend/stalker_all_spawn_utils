@@ -171,6 +171,13 @@ class Reader:
 
         return value
 
+    def respawn_point(self):
+        value = struct.unpack_from('<B', self.data, self.offset)[0]
+        self.offs(1)
+        if value == 254:
+            value = 'Use Supplied Coords'
+        return value
+
     def skip(self, size):
         self.offset += size
 

@@ -22,6 +22,12 @@ def debug(reader):
             value = value.replace('\r\n', '\\n ')
             print('{0: <30} = "{1}"'.format(name, value))
 
+        elif typ == net_packet.respawn_point:
+            if type(value) == str:
+                print('{0: <30} = "{1}"'.format(name, value))
+            else:
+                print('{0: <30} = {1}'.format(name, value))
+
         elif typ == net_packet.string:
             print('{0: <30} = "{1}"'.format(name, value))
 
