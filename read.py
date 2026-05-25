@@ -77,6 +77,11 @@ class Reader:
         self.offs(64)
         return value
 
+    def color32(self):
+        b, g, r, a = struct.unpack_from('<4B', self.data, self.offset)
+        self.offs(4)
+        return r, g, b, a
+
     def flags8(self):
         value = struct.unpack_from('<B', self.data, self.offset)[0]
         self.offs(1)

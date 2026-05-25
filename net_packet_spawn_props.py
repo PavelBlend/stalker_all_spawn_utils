@@ -155,7 +155,7 @@ HANGING_LAMP_FLAGS = (
 )
 
 HANGING_LAMP = (
-    ('color',                           uint32),    ###### разобрать на RGB
+    ('color',                           color32),
     ('brightness',                      float32),
     ('color_animator',                  string),
     ('range',                           float32),
