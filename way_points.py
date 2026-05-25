@@ -2,9 +2,9 @@ import fmt
 import read
 
 
-def read_way_points_count(data):
+def read_way_point_objects_count(data):
     reader = read.Reader(data)
-    way_points_count = reader.uint32()
+    way_point_objects_count = reader.uint32()
 
 
 def read_way_point_name(data):
@@ -104,7 +104,7 @@ def read_way_points_object(data):
             print('unknown waypoint chunk: {}'.format(chunk_id))
 
 
-def read_way_points_objects(data):
+def read_way_point_objects(data):
     chunks = read.Chunks(data)
 
     for way_id, way_data in chunks:
@@ -117,10 +117,10 @@ def read_way_points(data):
     for chunk_id, chunk_data in chunks:
 
         if chunk_id == fmt.SpawnWayPointsChunks.COUNT:
-            read_way_points_count(chunk_data)
+            read_way_point_objects_count(chunk_data)
 
         elif chunk_id == fmt.SpawnWayPointsChunks.OBJECTS:
-            read_way_points_objects(chunk_data)
+            read_way_point_objects(chunk_data)
 
         else:
             print('unknown waypoint chunk: {}'.format(chunk_id))
